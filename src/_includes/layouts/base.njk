@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% if seo_title %}{{ seo_title }}{% elif title %}{{ title }} | {{ site_name }}{% else %}{{ site_name }}{% endif %}</title>
+{% if settings.adsense_enabled %}<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1934454305970765" crossorigin="anonymous"></script>{% endif %}
 <meta name="description" content="{{ seo_description or description or tagline }}">
 <link rel="canonical" href="{{ site_url }}{{ page.url }}">
 <link rel="stylesheet" href="/assets/css/style.css">

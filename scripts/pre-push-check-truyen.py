@@ -28,9 +28,10 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      pl/polityka-prywatnosci) va du ca 5 trang; ten "Nguyen Trung Duc" (khong
      dau) du o Impressum/Datenschutz/Polityka; "Nguyễn Trung Đức" (co dau) = 0;
      tu "Ruler" = 0 trong chu hien thi (quyet Ruler 14:00/14:02/14:08).
-  6. AdSense TAT: 0 lan "ca-pub"/"adsbygoogle"/"adsense" trong _site; khong co
-     ads.txt; khong co file xac minh google*.html (chi bat SAU khi Ruler duyet
-     bat AdSense — xem adsense-chuan-bi/KE-HOACH-BAT-ADSENSE.md).
+  6. AdSense BAT (Ruler 11:42 27/11): moi HTML dung base.njk dung 1 lan
+     "ca-pub-1934454305970765"; admin/index.html + index.html (trang chuyen
+     huong, khong dung base.njk) = 0; ads.txt ton tai dung 1 dong; khong co
+     file xac minh google*.html.
   7. Giu cho: "[GIỮ CHỖ]" = 0 trong chu hien thi HTML + sitemap/robots;
      repo trong admin/config.yml (ca src/ lan _site/) phai la owner/repo that,
      khong duoc chua "GIỮ CHỖ". NGOAI LE CO TINH: cookie.js co chuoi "GIỮ CHỖ"
@@ -54,6 +55,10 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      chay lai muc nay bang kiem-anh-bia.py --base https://sunbow.click (va
      https://plasma.click) de kiem anh that tren live (trinh duyet do
      naturalWidth > 0, 0 anh vo).
+ 12. Admin sach (Ruler 11:50 27/11 — config.yml live lo ghi chu noi bo):
+     moi file duoi _site/admin/ co 0 dong bat dau bang # (sau khoang trang
+     dau dong), 0 chu thich HTML <!-- -->, 0 tu "Ruler"/"GIỮ CHỖ"; trang
+     admin co meta noindex; robots.txt Disallow /admin/ (muc 3 kiem robots).
 
 Exit 0 = DAT het (cho phep day). Exit 1 = co muc truot (CHAN day).
 """
@@ -277,26 +282,35 @@ def main():
         print("5. Email that: DAT (chi o dung 5 trang phap ly; ten dung dang khong dau; "
               "0 'Nguyễn Trung Đức'; 0 tu 'Ruler')")
 
-    # ---------- 6. AdSense TAT ----------
-    ads_hits = []
+    # ---------- 6. AdSense BAT ----------
+    pub = "ca-pub-1934454305970765"
+    html_no_code = {"index.html", "admin/index.html"}  # trang chuyen huong goc + CMS admin khong dung base.njk
+    bad_code = []
+    for h in htmls:
+        rel = str(h.relative_to(out))
+        n = h.read_text(encoding="utf-8", errors="ignore").count(pub)
+        want = 0 if rel in html_no_code else 1
+        if n != want:
+            bad_code.append(f"{rel}: {n} (can {want})")
+    non_html_hits = []
     for f in sorted(out.rglob("*")):
-        if not f.is_file():
+        if not f.is_file() or f.suffix.lower() == ".html":
             continue
         try:
             t = f.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        if re.search(r"ca-pub|adsbygoogle|adsense", t, re.I):
-            ads_hits.append(str(f.relative_to(out)))
-    ads_txt = (out / "ads.txt").exists()
+        if pub in t or "adsbygoogle" in t:
+            non_html_hits.append(str(f.relative_to(out)))
+    ads_txt_f = (out / "ads.txt")
+    ads_txt_ok = ads_txt_f.exists() and ads_txt_f.read_text(encoding="utf-8").strip() == "google.com, pub-1934454305970765, DIRECT, f08c47fec0942fa0"
     gfile = list(out.glob("google*.html"))
-    if ads_hits or ads_txt or gfile:
-        fail(f"AdSense: file chua ca-pub/adsbygoogle/adsense: {ads_hits}; "
-             f"ads.txt: {'CO (sai — AdSense dang TAT)' if ads_txt else 'khong co'}; "
+    if bad_code or non_html_hits or not ads_txt_ok or gfile:
+        fail(f"AdSense: HTML sai so ma: {bad_code}; file khong-phai-HTML chua ma: {non_html_hits}; "
+             f"ads.txt: {'DAT' if ads_txt_ok else 'SAI/thieu'}; "
              f"file xac minh google*.html: {[str(p.relative_to(out)) for p in gfile]}")
     else:
-        print("6. AdSense TAT: DAT (0 ca-pub/adsbygoogle/adsense; khong ads.txt; "
-              "khong file google*.html)")
+        print("6. AdSense BAT: DAT (moi HTML dung base.njk dung 1 ma; admin + trang chuyen huong 0 ma; ads.txt dung; khong file google*.html)")
 
     # ---------- 7. Giu cho + repo admin ----------
     ph_files = []
@@ -428,6 +442,40 @@ def main():
         n_story = len(built.get("de", [])) + len(built.get("pl", []))
         print(f"11. Anh bia: DAT ({n_story} truyen co cover that; {len(seen)} img "
               f"tren trang chu/danh muc/truyen deu ton tai, >0B)")
+
+    # ---------- 12. Admin sach: khong ghi chu noi bo tren live ----------
+    # (Ruler 11:50 27/11: config.yml live lo 48 dong binh luan tieng Viet.
+    #  Buoc dung strip-admin-config.js bo dong # khi build; muc nay kiem
+    #  lai tren _site.)
+    admin_dir = out / "admin"
+    admin_bad = []
+    if not admin_dir.exists():
+        admin_bad.append("thieu thu muc _site/admin/")
+    else:
+        for f in sorted(admin_dir.rglob("*")):
+            if not f.is_file():
+                continue
+            rel = str(f.relative_to(out))
+            try:
+                lines = f.read_text(encoding="utf-8", errors="ignore").splitlines()
+            except OSError:
+                continue
+            n_hash = sum(1 for ln in lines if ln.lstrip().startswith("#"))
+            if n_hash:
+                admin_bad.append(f"{rel}: {n_hash} dong bat dau bang #")
+            t = "\n".join(lines)
+            if "<!--" in t:
+                admin_bad.append(f"{rel}: chua chu thich HTML <!-- -->")
+            for w in ("Ruler", "GIỮ CHỖ"):
+                if w in t:
+                    admin_bad.append(f"{rel}: chua tu '{w}'")
+    admin_idx = admin_dir / "index.html"
+    if admin_idx.exists() and "noindex" not in admin_idx.read_text(encoding="utf-8", errors="ignore").lower():
+        admin_bad.append("admin/index.html thieu meta noindex")
+    if admin_bad:
+        fail(f"admin sach: {admin_bad}")
+    else:
+        print("12. Admin sach: DAT (0 dong # + 0 chu thich HTML + 0 tu noi bo trong _site/admin/; admin co noindex)")
 
     print("KET LUAN:", "DAT - CHO PHEP DAY" if ok else "TRUOT - CHAN DAY")
     sys.exit(0 if ok else 1)

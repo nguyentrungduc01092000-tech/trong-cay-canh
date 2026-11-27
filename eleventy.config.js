@@ -21,6 +21,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "src/admin": "admin" });
   // Anh goc trong src/media duoc giu nguyen tai /media/ (CMS upload vao day).
   eleventyConfig.addPassthroughCopy({ "src/media": "media" });
+  eleventyConfig.addPassthroughCopy("src/ads.txt");
 
   // --- Bo loc ngay ban dia: {{ date | dateLocalized('de-DE') }} ---
   eleventyConfig.addFilter("dateLocalized", (date, locale) => {
