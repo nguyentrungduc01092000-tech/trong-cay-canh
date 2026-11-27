@@ -40,7 +40,9 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      .txt/.svg/.webp/.avif/.jpeg/.jpg/.png/.gif/.ico/CNAME); khong co .md,
      khong co node_modules; admin/config.yml phai co.
   9. CNAME/workflow: file CNAME o goc repo (workflow copy vao _site) chi chua
-     dung 1 domain; .github/workflows/deploy-pages.yml phai co buoc copy CNAME.
+     dung 1 domain; .github/workflows/deploy-pages.yml phai co buoc copy CNAME
+     VA buoc tach sitemap/robots theo domain (split-sitemap-robots — Ruler
+     08:50 27/11: moi domain chi co sitemap/robots cua chinh no).
      (Chua co repo thi muc nay TRUOT — dung, doi Ruler tao repo + dien CNAME.)
  10. Cau hu cau: moi trang truyen + 2 trang chu deu co cau tuyen bo hu cau
      dung ngon ngu (DE "Alle Geschichten auf dieser Website sind frei
@@ -352,13 +354,17 @@ def main():
     wf_bad = []
     if not wf.exists():
         wf_bad.append("khong co .github/workflows/deploy-pages.yml")
-    elif "CNAME" not in wf.read_text(encoding="utf-8", errors="ignore"):
-        wf_bad.append("workflow khong co buoc copy CNAME vao _site")
+    else:
+        wf_text = wf.read_text(encoding="utf-8", errors="ignore")
+        if "CNAME" not in wf_text:
+            wf_bad.append("workflow khong co buoc copy CNAME vao _site")
+        if "split-sitemap-robots" not in wf_text:
+            wf_bad.append("workflow khong co buoc tach sitemap/robots theo domain")
     if cname_bad or wf_bad:
         fail(f"CNAME/workflow: {cname_bad}; {wf_bad}")
     else:
         dom = cname.read_text(encoding="utf-8", errors="ignore").strip()
-        print(f"9. CNAME/workflow: DAT (CNAME={dom}; workflow co buoc copy CNAME)")
+        print(f"9. CNAME/workflow: DAT (CNAME={dom}; workflow co buoc copy CNAME + tach sitemap/robots)")
 
     # ---------- 10. Cau hu cau ----------
     fic_bad = []

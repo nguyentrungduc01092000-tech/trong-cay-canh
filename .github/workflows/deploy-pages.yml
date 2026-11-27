@@ -3,11 +3,15 @@
 # deployment > Source: "GitHub Actions"), dien file CNAME o goc repo (ten mien
 # cua repo nay: sunbow.click HOAC plasma.click — xem CAU-TRUC-REPO.md),
 # dien `repo:` trong src/admin/config.yml thanh repo that.
-# Khac ban goc trong site/.github/workflows/deploy-pages.yml o 2 cho:
+# Khac ban goc trong site/.github/workflows/deploy-pages.yml o 3 cho:
 #  (1) buoc "Copy CNAME" — Pages mat custom domain neu artifact thieu file
 #      CNAME, ke ca deploy dinh ky (scheduled-build.yml cung co buoc nay);
 #  (2) buoc "Pre-push gate" — chay pre-push-check-truyen.py SAU khi build,
 #      TRUOC khi upload artifact; gate truot thi deploy DUNG, khong len live.
+#  (3) buoc "Split sitemap/robots" (27/11/2026, Ruler 08:50) — moi domain chi
+#      duoc co sitemap/robots cua chinh no (sunbow 30 loc, plasma 27 loc);
+#      ban gop 57 loc + 2 dong Sitemap la loi voi Google. Chay SAU gate
+#      (gate kiem ban gop), TRUOC upload artifact; domain lay tu file CNAME.
 name: Deploy to GitHub Pages
 
 on:
@@ -46,6 +50,12 @@ jobs:
       # va truot "khong co _site" (run 45921989405 ngay 27/11).
       - name: Pre-push gate (20 DE / 19 PL)
         run: python3 scripts/pre-push-check-truyen.py --expect-de 20 --expect-pl 19 --no-build --site-dir .
+      # Tach sitemap/robots theo domain (Ruler 08:50 27/11): gate o tren kiem
+      # ban gop (57 loc, 2 dong Sitemap); buoc nay loc _site/sitemap.xml chi
+      # con URL cua domain trong CNAME + robots.txt chi 1 dong Sitemap cua
+      # domain do, roi moi upload artifact. Loi thi dung deploy.
+      - name: Split sitemap/robots per domain (CNAME)
+        run: python3 scripts/split-sitemap-robots.py --site-dir .
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
