@@ -41,8 +41,11 @@ jobs:
           cp CNAME _site/CNAME
           cat _site/CNAME
       # Quyet Ruler 07:24 ngay 27/11: go de-03/pl-03, day dung 20 DE / 19 PL.
+      # --site-dir . : trong repo, goc site CHINH LA goc repo (src/ + _site/ o day);
+      # khong truyen thi gate mac dinh tim <cha-cua-repo>/site (khong co trong CI)
+      # va truot "khong co _site" (run 45921989405 ngay 27/11).
       - name: Pre-push gate (20 DE / 19 PL)
-        run: python3 scripts/pre-push-check-truyen.py --expect-de 20 --expect-pl 19 --no-build
+        run: python3 scripts/pre-push-check-truyen.py --expect-de 20 --expect-pl 19 --no-build --site-dir .
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
