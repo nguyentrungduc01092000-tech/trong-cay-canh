@@ -1,0 +1,49 @@
+# Rebuild dinh ky — de bai hen gio tu len ma khong can ai bam nut.
+# Chay 2 lan/ngay (06:00 va 18:00 UTC). Chi viet file, KHONG kich hoat o day.
+# Khac ban goc trong site/.github/workflows/scheduled-build.yml o 1 cho:
+# buoc "Copy CNAME" — moi lan deploy (ke ca dinh ky) deu phai co CNAME trong
+# artifact, neu khong GitHub Pages mat custom domain.
+name: Scheduled build
+
+on:
+  schedule:
+    - cron: "0 6,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Copy CNAME into _site
+        run: |
+          test -f CNAME || { echo "THIEU file CNAME o goc repo — dung deploy"; exit 1; }
+          cp CNAME _site/CNAME
+          cat _site/CNAME
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

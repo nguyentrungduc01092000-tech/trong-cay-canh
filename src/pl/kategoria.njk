@@ -1,0 +1,36 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: categories
+  size: 1
+  alias: cat
+permalink: /pl/kategoria/{{ cat.key }}/
+eleventyComputed:
+  title: "Kategoria: {{ cat.pl }}"
+---
+<h1>Kategoria: {{ cat.pl }}</h1>
+<p class="back-link"><a href="/pl/">← {{ category_back }}</a></p>
+
+{% set items = collections.posts_pl | postsInCategory(cat.pl) %}
+{% if items | length %}
+<ul class="grid">
+{% for post in items %}
+  <li class="card" data-slug="{{ post.data.slug }}">
+    {% if post.data.cover %}
+    <a href="{{ post.url }}" tabindex="-1" aria-hidden="true">{% image post.data.cover, post.data.title %}</a>
+    {% endif %}
+    <div class="card-body">
+      <h2><a href="{{ post.url }}">{{ post.data.title }}</a></h2>
+      <p class="desc">{{ post.data.description }}</p>
+      <p class="meta">
+        <time datetime="{{ post.date | date('%Y-%m-%d') }}">{{ post.date | dateLocalized(locale) }}</time>
+        {% if post.data.category %} · {{ post.data.category }}{% endif %}
+      </p>
+      <p class="read-more"><a href="{{ post.url }}">{{ read_more }} →</a></p>
+    </div>
+  </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>{{ category_empty }}</p>
+{% endif %}

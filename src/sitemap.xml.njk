@@ -1,0 +1,20 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{# collections.all chi chua trang dau cua moi template phan trang (Eleventy) nen
+   12 trang chuyen muc duoc liet ke rieng tu categories.json ben duoi.
+   Moi ngon ngu mot domain: /de/ + /dashboard/ -> sunbow.click, /pl/ -> plasma.click. #}
+{%- for page in collections.all %}
+{%- if page.url and page.url != "/admin/" and "kategorie" not in page.url and "kategoria" not in page.url %}
+{%- set purl = settings.site_url_de if page.url.startsWith('/de/') or page.url == '/dashboard/' else settings.site_url_pl %}
+  <url><loc>{{ purl }}{{ page.url }}</loc></url>
+{%- endif %}
+{%- endfor %}
+{%- for cat in categories %}
+  <url><loc>{{ settings.site_url_de }}/de/kategorie/{{ cat.key }}/</loc></url>
+  <url><loc>{{ settings.site_url_pl }}/pl/kategoria/{{ cat.key }}/</loc></url>
+{%- endfor %}
+</urlset>

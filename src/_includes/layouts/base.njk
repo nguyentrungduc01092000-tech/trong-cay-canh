@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+{% set gc_domain = settings.goatcounter_domain_de if (lang | default('de')) == 'de' else settings.goatcounter_domain_pl %}
+{% set site_url = settings.site_url_de if (lang | default('de')) == 'de' else settings.site_url_pl %}
+<html lang="{{ lang | default('de') }}" data-goatcounter="{{ gc_domain }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if seo_title %}{{ seo_title }}{% elif title %}{{ title }} | {{ site_name }}{% else %}{{ site_name }}{% endif %}</title>
+<meta name="description" content="{{ seo_description or description or tagline }}">
+<link rel="canonical" href="{{ site_url }}{{ page.url }}">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="/{{ lang }}/">{{ site_name }}</a>
+    <div class="header-right">
+      {% if page.url == '/' + (lang | default('de')) + '/' %}
+      <div class="header-search">
+        <label class="visually-hidden" for="search-input">{{ search_label }}</label>
+        <input id="search-input" type="search" data-index="/{{ lang }}/search.json" placeholder="{{ search_placeholder }}" autocomplete="off">
+      </div>
+      {% endif %}
+      <nav class="lang-switch" aria-label="Sprache / Język">
+        <a href="/de/" {% if lang == 'de' %}aria-current="page"{% endif %}>DE</a>
+        <span aria-hidden="true">|</span>
+        <a href="/pl/" {% if lang == 'pl' %}aria-current="page"{% endif %}>PL</a>
+      </nav>
+    </div>
+  </div>
+  <p class="tagline wrap">{{ tagline }}</p>
+</header>
+
+<main class="wrap">
+  {{ content | safe }}
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav class="footer-nav">
+      {% if lang == 'de' %}
+        <a href="/de/impressum/">Impressum</a> · <a href="/de/datenschutz/">Datenschutz</a> · <a href="#" id="cookie-settings">Cookie-Einstellungen</a> · <a href="/de/ueber-uns/">Über uns</a> · <a href="/de/kontakt/">Kontakt</a>
+      {% else %}
+        <a href="/pl/polityka-prywatnosci/">Polityka prywatności</a> · <a href="#" id="cookie-settings">Ustawienia plików cookie</a> · <a href="/pl/kontakt/">Kontakt</a> · <a href="/pl/o-nas/">O nas</a>
+      {% endif %}
+      · <a href="/dashboard/">Dashboard</a>
+    </nav>
+    <p class="fiction-note">{{ settings.footer_note_de if lang == 'de' else settings.footer_note_pl }}</p>
+    <p class="copyright">© {{ "now" | date("%Y") }} {{ site_name }}</p>
+  </div>
+</footer>
+
+<div id="cookie-banner" class="cookie-banner" hidden>
+  <p>{{ cookie_text }}</p>
+  <p class="cookie-more">
+    {% if lang == 'de' %}
+      Mehr dazu in der <a href="/de/datenschutz/">Datenschutzerklärung</a>.
+    {% else %}
+      Więcej w <a href="/pl/polityka-prywatnosci/">polityce prywatności</a>.
+    {% endif %}
+  </p>
+  <div class="cookie-actions">
+    <button id="cookie-accept" type="button">{{ cookie_accept }}</button>
+    <button id="cookie-decline" type="button">{{ cookie_decline }}</button>
+  </div>
+</div>
+<script src="/assets/js/cookie.js" defer></script>
+</body>
+</html>

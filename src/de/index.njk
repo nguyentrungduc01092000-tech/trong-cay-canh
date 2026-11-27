@@ -1,0 +1,38 @@
+---
+layout: layouts/base.njk
+permalink: /de/
+---
+<h1 class="section-title">{{ home_title }}</h1>
+
+<p class="fiction-intro">{{ fiction_intro }}</p>
+
+<nav class="cat-nav" aria-label="{{ categories_heading }}">
+  <h2>{{ categories_heading }}</h2>
+  <ul>
+  {% for cat in categories %}
+    <li><a href="/de/kategorie/{{ cat.key }}/">{{ cat.de }} ({{ collections.posts_de | categoryCount(cat.de) }})</a></li>
+  {% endfor %}
+  </ul>
+</nav>
+
+<p id="search-empty" hidden>{{ search_no_results }}</p>
+
+<ul id="post-grid" class="grid">
+{% for post in collections.posts_de %}
+  <li class="card" data-slug="{{ post.data.slug }}" data-search="{{ post.data.title }} {{ post.data.description }} {{ post.data.category }} {{ post.data.tags | join(' ') }}">
+    {% if post.data.cover %}
+    <a href="{{ post.url }}" tabindex="-1" aria-hidden="true">{% image post.data.cover, post.data.title %}</a>
+    {% endif %}
+    <div class="card-body">
+      <h2><a href="{{ post.url }}">{{ post.data.title }}</a></h2>
+      <p class="desc">{{ post.data.description }}</p>
+      <p class="meta">
+        <time datetime="{{ post.date | date('%Y-%m-%d') }}">{{ post.date | dateLocalized(locale) }}</time>
+        {% if post.data.category %} · <a href="{{ post.data.category | categoryUrl('de') }}">{{ post.data.category }}</a>{% endif %}
+      </p>
+    </div>
+  </li>
+{% endfor %}
+</ul>
+
+<script src="/assets/js/search.js" defer></script>

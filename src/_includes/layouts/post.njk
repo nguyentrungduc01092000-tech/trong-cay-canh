@@ -1,0 +1,31 @@
+---
+layout: layouts/base.njk
+---
+<article class="post">
+  <header>
+    <p class="meta">
+      <time datetime="{{ date | date('%Y-%m-%d') }}">{{ date | dateLocalized(locale) }}</time>
+      {% if category %} · {{ category_label }}: <a href="{{ category | categoryUrl(lang) }}">{{ category }}</a>{% endif %}
+      · {{ author_label }}: {{ author }}
+    </p>
+    <h1>{{ title }}</h1>
+    {% if cover %}
+    <figure class="cover">
+      {% image cover, title %}
+    </figure>
+    {% endif %}
+  </header>
+  <div class="post-body">
+    {{ content | safe }}
+  </div>
+  {% if images %}
+  <div class="inline-images">
+    {% for img in images %}
+      {% image img, title %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  <footer class="post-footer">
+    <p><a href="/{{ lang }}/">← {{ home_title }}</a></p>
+  </footer>
+</article>

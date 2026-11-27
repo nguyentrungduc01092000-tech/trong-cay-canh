@@ -1,0 +1,62 @@
+---
+layout: layouts/base.njk
+permalink: /dashboard/
+title: Dashboard
+lang: de
+description: "Dashboard mit Statistiken zum Stand des letzten Builds: veröffentlichte und geplante Geschichten."
+---
+<h1>Dashboard — Statistik (Build-Zeit / Statystyki czasu budowania)</h1>
+<p>Diese Seite wird bei jedem Build neu erzeugt. Zahlen unten sind der Stand zum Zeitpunkt des letzten Builds — kein Live-Tracking.</p>
+
+<table class="stats">
+  <thead>
+    <tr><th>Sprache / Język</th><th>Veröffentlichte Geschichten</th><th>Geplante Geschichten (Datum in der Zukunft)</th><th>Neueste Geschichte</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Deutsch (DE)</td>
+      <td>{{ collections.posts_de | length }}</td>
+      <td>{{ collections.scheduled_de | length }}</td>
+      <td>
+        {% if collections.posts_de | length %}
+          {% set latest = collections.posts_de[0] %}
+          <a href="{{ latest.url }}">{{ latest.data.title }}</a> — {{ latest.date | dateLocalized('de-DE') }}
+        {% else %}—{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Polski (PL)</td>
+      <td>{{ collections.posts_pl | length }}</td>
+      <td>{{ collections.scheduled_pl | length }}</td>
+      <td>
+        {% if collections.posts_pl | length %}
+          {% set latest = collections.posts_pl[0] %}
+          <a href="{{ latest.url }}">{{ latest.data.title }}</a> — {{ latest.date | dateLocalized('pl-PL') }}
+        {% else %}—{% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Besucherstatistik (GoatCounter)</h2>
+<p>
+  {% if settings.goatcounter_domain_de and '[GIỮ CHỖ' not in settings.goatcounter_domain_de %}
+    <a href="https://{{ settings.goatcounter_domain_de }}/">GoatCounter-Statistik (DE) öffnen</a><br>
+  {% endif %}
+  {% if settings.goatcounter_domain_pl and '[GIỮ CHỖ' not in settings.goatcounter_domain_pl %}
+    <a href="https://{{ settings.goatcounter_domain_pl }}/">GoatCounter-Statistik (PL) öffnen</a>
+  {% endif %}
+</p>
+
+<h2>Geplante Geschichten (Details)</h2>
+<ul>
+{% for post in collections.scheduled_de %}
+  <li>DE: {{ post.data.title }} — {{ post.date | dateLocalized('de-DE') }}</li>
+{% endfor %}
+{% for post in collections.scheduled_pl %}
+  <li>PL: {{ post.data.title }} — {{ post.date | dateLocalized('pl-PL') }}</li>
+{% endfor %}
+{% if collections.scheduled_de.length == 0 and collections.scheduled_pl.length == 0 %}
+  <li>Keine geplanten Geschichten. / Brak zaplanowanych opowieści.</li>
+{% endif %}
+</ul>

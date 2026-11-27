@@ -1,0 +1,57 @@
+# Deploy len GitHub Pages khi push len main. Chi viet file, KHONG kich hoat o day.
+# Truoc khi dung: Ruler tao repo + bat Pages (Settings > Pages > Build and
+# deployment > Source: "GitHub Actions"), dien file CNAME o goc repo (ten mien
+# cua repo nay: sunbow.click HOAC plasma.click — xem CAU-TRUC-REPO.md),
+# dien `repo:` trong src/admin/config.yml thanh repo that.
+# Khac ban goc trong site/.github/workflows/deploy-pages.yml o 2 cho:
+#  (1) buoc "Copy CNAME" — Pages mat custom domain neu artifact thieu file
+#      CNAME, ke ca deploy dinh ky (scheduled-build.yml cung co buoc nay);
+#  (2) buoc "Pre-push gate" — chay pre-push-check-truyen.py SAU khi build,
+#      TRUOC khi upload artifact; gate truot thi deploy DUNG, khong len live.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Copy CNAME into _site
+        run: |
+          test -f CNAME || { echo "THIEU file CNAME o goc repo — dung deploy"; exit 1; }
+          cp CNAME _site/CNAME
+          cat _site/CNAME
+      # Quyet Ruler 07:24 ngay 27/11: go de-03/pl-03, day dung 20 DE / 19 PL.
+      - name: Pre-push gate (20 DE / 19 PL)
+        run: python3 scripts/pre-push-check-truyen.py --expect-de 20 --expect-pl 19 --no-build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
