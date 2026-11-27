@@ -1,0 +1,384 @@
+# Sveltia CMS — cau hinh quan tri cho 2 web truyen DE/PL.
+# QUAN TRONG: Khong ghi token/secret vao file nay. Ruler tu tao token GitHub
+# (quyen: repo — doc + ghi repo) va dang nhap o /admin/; token chi nam o
+# trinh duyet cua Ruler, khong luu trong repo.
+# Truoc khi dung that: sua `repo:` thanh repo GitHub that cua Ruler.
+#
+# CAP NHAT 26/11/2026 (nhom F, theo spec admin C + lenh doi chu de tinh cam):
+# - Chuyen muc doi sang 4 nhom tinh cam moi (Liebe / Ehe und Beziehung /
+#   Familie und Herz / Versohnung — Miłość / Małżeństwo i związek / Rodzina /
+#   Pojednanie); chuyen muc cu (6 muc: Familie, Nachbarschaft, ...) da bo.
+# - Collection Categories them `root: true` (file categories.json la mang
+#   o cap cao nhat; khong co root thi Sveltia khong doc duoc file nay) +
+#   truong ten tieng Viet `vi` (theo spec 03 §7.1).
+# - Posts them: loc xem theo chuyen muc + trang thai (view_filters), sap xep
+#   theo ngay/tieu de (sortable_fields), tom tat dong danh sach (summary),
+#   2 truong an (hidden) layout + permalink de bai luu qua CMS van giu dung
+#   dinh dang file .md cua demo (khong co 2 truong nay, bai tao/sua qua CMS
+#   co the mat layout hoac permalink).
+# - Them collection Menus (file src/_data/menus.json, theo spec 02 §A.7.3)
+#   va collection About (trang Tac gia / Gioi thieu). Collection Legal them
+#   truong an layout + permalink (ly do nhu tren).
+# - Collection Settings them 2 truong tac gia mac dinh (default_author_de/pl)
+#   da co trong settings.json.
+# - output.omit_empty_optional_fields: true — khong ghi truong tuy chon rong
+#   (vd seo_title: '') vao frontmatter.
+# CHUA LAM (chi admin C tu viet moi co — xem ban giao nhom F):
+# Comments, Patterns, Site Health, Background Jobs, Privacy (GDPR),
+# AI Translation, SEO Templates (mau chi luu o D1, khong ghi vao Git),
+# hen gio dang dung phut (demo dung rebuild dinh ky 06:00/18:00 UTC).
+# LOCALE: giu `de` — doi sang tieng Viet cho Ruler quyet (khung chung §10 muc 8).
+
+backend:
+  name: github
+  repo: "nguyentrungduc01092000-tech/trong-cay-canh"
+  branch: main
+  # Sveltia CMS ho tro dang nhap bang token ca nhan (Personal Access Token).
+  # Khong co muc token o day — co tinh de trong.
+
+# Anh tai len qua CMS vao thu muc nay (duoc Eleventy copy nguyen ban ra /media/).
+media_folder: "src/media"
+public_folder: "/media"
+
+# Ngon ngu giao dien CMS.
+locale: de
+
+# Khong ghi truong tuy chon dang rong vao frontmatter/file (vd seo_title: '').
+output:
+  omit_empty_optional_fields: true
+
+# Danh sach bai dang dang bang: Sveltia CMS hien thi danh sach entry dang list
+# co tim kiem/loc theo truong (theo tai lieu cua Sveltia CMS); ban demo nay
+# CHUA kiem chung bang tai khoan that — xem README muc 2 (han che da biet).
+collections:
+  # ---- Truyen tieng Duc ----
+  - name: posts_de
+    label: "Truyện tiếng Đức (Posts DE)"
+    label_singular: "Truyện DE"
+    folder: "src/de/posts"
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}} — {{category}} · {{date}}"
+    sortable_fields: [date, title]
+    view_filters:
+      - { label: "Liebe", field: category, pattern: "Liebe" }
+      - { label: "Ehe und Beziehung", field: category, pattern: "Ehe und Beziehung" }
+      - { label: "Familie und Herz", field: category, pattern: "Familie und Herz" }
+      - { label: "Versöhnung", field: category, pattern: "Versöhnung" }
+      - { label: "Nháp", field: draft, pattern: true }
+      - { label: "Đã đăng", field: draft, pattern: false }
+    fields:
+      - { name: title, label: "Tiêu đề", widget: string, required: true, hint: "Tiêu đề móc 12–20 từ, ngôi thứ nhất." }
+      - { name: slug, label: "Slug (đường dẫn)", widget: string, required: true, pattern: ['^[a-z0-9-]+$', "Chỉ chữ thường, số và dấu gạch ngang."] }
+      - { name: description, label: "Mô tả ngắn (teaser 1–2 câu)", widget: text, required: true }
+      - { name: body, label: "Nội dung truyện", widget: markdown, required: true, hint: "Chuẩn 900–1.200 từ, ngôi thứ nhất, kết trọn vẹn." }
+      - { name: cover, label: "Ảnh bìa", widget: image, required: true }
+      - { name: images, label: "Ảnh trong bài (1–2 ảnh)", widget: list, required: false, field: { name: image, label: "Ảnh", widget: image } }
+      - name: category
+        label: "Chuyên mục"
+        widget: select
+        required: true
+        options: ["Liebe", "Ehe und Beziehung", "Familie und Herz", "Versöhnung"]
+      - { name: tags, label: "Thẻ (tags)", widget: list, required: false, field: { name: tag, label: "Thẻ", widget: string } }
+      - { name: date, label: "Ngày đăng / hẹn giờ", widget: datetime, required: true, date_format: "YYYY-MM-DD", time_format: "HH:mm", hint: "Đặt ngày trong tương lai = hẹn giờ; bài tự lên khi workflow rebuild định kỳ chạy." }
+      - { name: author, label: "Tác giả hiển thị", widget: string, required: false, default: "Redaktion" }
+      - { name: seo_title, label: "SEO title", widget: string, required: false }
+      - { name: seo_description, label: "SEO description", widget: text, required: false }
+      - name: draft
+        label: "Trạng thái"
+        widget: select
+        required: true
+        default: false
+        options:
+          - { label: "Đã đăng (published)", value: false }
+          - { label: "Nháp (draft)", value: true }
+      - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/post.njk" }
+      - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/{{ slug }}/" }
+  # ---- Truyen tieng Ba Lan ----
+  - name: posts_pl
+    label: "Truyện tiếng Ba Lan (Posts PL)"
+    label_singular: "Truyện PL"
+    folder: "src/pl/posts"
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}} — {{category}} · {{date}}"
+    sortable_fields: [date, title]
+    view_filters:
+      - { label: "Miłość", field: category, pattern: "Miłość" }
+      - { label: "Małżeństwo i związek", field: category, pattern: "Małżeństwo i związek" }
+      - { label: "Rodzina", field: category, pattern: "Rodzina" }
+      - { label: "Pojednanie", field: category, pattern: "Pojednanie" }
+      - { label: "Szkic", field: draft, pattern: true }
+      - { label: "Opublikowane", field: draft, pattern: false }
+    fields:
+      - { name: title, label: "Tytuł", widget: string, required: true, hint: "Tytuł 12–20 słów, pierwsza osoba." }
+      - { name: slug, label: "Slug (adres)", widget: string, required: true, pattern: ['^[a-z0-9-]+$', "Tylko małe litery, cyfry i myślniki."] }
+      - { name: description, label: "Krótki opis (1–2 zdania)", widget: text, required: true }
+      - { name: body, label: "Treść opowieści", widget: markdown, required: true, hint: "900–1200 słów, pierwsza osoba, zakończenie pełne." }
+      - { name: cover, label: "Obraz okładki", widget: image, required: true }
+      - { name: images, label: "Zdjęcia w tekście (1–2)", widget: list, required: false, field: { name: image, label: "Zdjęcie", widget: image } }
+      - name: category
+        label: "Kategoria"
+        widget: select
+        required: true
+        options: ["Miłość", "Małżeństwo i związek", "Rodzina", "Pojednanie"]
+      - { name: tags, label: "Tagi", widget: list, required: false, field: { name: tag, label: "Tag", widget: string } }
+      - { name: date, label: "Data publikacji / zaplanowana", widget: datetime, required: true, date_format: "YYYY-MM-DD", time_format: "HH:mm", hint: "Data w przyszłości = zaplanowana; pojawi się po zaplanowanym rebuildzie." }
+      - { name: author, label: "Autor", widget: string, required: false, default: "Redakcja" }
+      - { name: seo_title, label: "SEO title", widget: string, required: false }
+      - { name: seo_description, label: "SEO description", widget: text, required: false }
+      - name: draft
+        label: "Status"
+        widget: select
+        required: true
+        default: false
+        options:
+          - { label: "Opublikowane", value: false }
+          - { label: "Szkic", value: true }
+      - { name: layout, label: "Layout (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "layouts/post.njk" }
+      - { name: permalink, label: "Permalink (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "/pl/{{ slug }}/" }
+  # ---- Chuyen muc (sua qua file JSON) ----
+  - name: categories
+    label: "Chuyên mục (Categories)"
+    label_singular: "Chuyên mục"
+    files:
+      - name: categories
+        label: "Danh sách 4 chuyên mục"
+        file: "src/_data/categories.json"
+        fields:
+          - name: categories
+            label: "Chuyên mục"
+            widget: list
+            root: true
+            fields:
+              - { name: key, label: "Khóa (slug)", widget: string }
+              - { name: vi, label: "Tên tiếng Việt", widget: string }
+              - { name: de, label: "Tên tiếng Đức", widget: string }
+              - { name: pl, label: "Tên tiếng Ba Lan", widget: string }
+  # ---- Menu dieu huong (file JSON moi, theo spec 02 §A.7.3) ----
+  # LUU Y: base.njk CHUA doc menus.json — sua menu o day chua doi duoc nav
+  # tren site. Can noi base.njk doc file nay (nhom C / buoc sau) moi co tac
+  # dung tren web that. Xem ban giao nhom F.
+  - name: menus
+    label: "Menu điều hướng (Menus)"
+    label_singular: "Menu"
+    files:
+      - name: menus
+        label: "4 menu (chính + chân trang, DE/PL)"
+        file: "src/_data/menus.json"
+        fields:
+          - name: de_header
+            label: "Menu chính DE"
+            widget: list
+            fields:
+              - { name: label, label: "Nhãn", widget: string }
+              - name: type
+                label: "Loại đích"
+                widget: select
+                options:
+                  - { label: "Trang nội bộ", value: "page" }
+                  - { label: "Chuyên mục", value: "category" }
+                  - { label: "URL ngoài", value: "external" }
+                  - { label: "Trang pháp lý", value: "legal" }
+              - { name: target, label: "Đích (đường dẫn / khóa chuyên mục / URL)", widget: string }
+              - { name: new_tab, label: "Mở tab mới", widget: boolean, required: false, default: false }
+              - name: children
+                label: "Mục con (tối đa 1 cấp)"
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: "Nhãn", widget: string }
+                  - name: type
+                    label: "Loại đích"
+                    widget: select
+                    options:
+                      - { label: "Trang nội bộ", value: "page" }
+                      - { label: "Chuyên mục", value: "category" }
+                      - { label: "URL ngoài", value: "external" }
+                      - { label: "Trang pháp lý", value: "legal" }
+                  - { name: target, label: "Đích", widget: string }
+          - name: de_footer
+            label: "Menu chân trang DE"
+            widget: list
+            fields:
+              - { name: label, label: "Nhãn", widget: string }
+              - name: type
+                label: "Loại đích"
+                widget: select
+                options:
+                  - { label: "Trang nội bộ", value: "page" }
+                  - { label: "Chuyên mục", value: "category" }
+                  - { label: "URL ngoài", value: "external" }
+                  - { label: "Trang pháp lý", value: "legal" }
+              - { name: target, label: "Đích (đường dẫn / khóa chuyên mục / URL)", widget: string }
+              - { name: new_tab, label: "Mở tab mới", widget: boolean, required: false, default: false }
+              - name: children
+                label: "Mục con (tối đa 1 cấp)"
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: "Nhãn", widget: string }
+                  - name: type
+                    label: "Loại đích"
+                    widget: select
+                    options:
+                      - { label: "Trang nội bộ", value: "page" }
+                      - { label: "Chuyên mục", value: "category" }
+                      - { label: "URL ngoài", value: "external" }
+                      - { label: "Trang pháp lý", value: "legal" }
+                  - { name: target, label: "Đích", widget: string }
+          - name: pl_header
+            label: "Menu chính PL"
+            widget: list
+            fields:
+              - { name: label, label: "Nhãn", widget: string }
+              - name: type
+                label: "Loại đích"
+                widget: select
+                options:
+                  - { label: "Trang nội bộ", value: "page" }
+                  - { label: "Chuyên mục", value: "category" }
+                  - { label: "URL ngoài", value: "external" }
+                  - { label: "Trang pháp lý", value: "legal" }
+              - { name: target, label: "Đích (đường dẫn / khóa chuyên mục / URL)", widget: string }
+              - { name: new_tab, label: "Mở tab mới", widget: boolean, required: false, default: false }
+              - name: children
+                label: "Mục con (tối đa 1 cấp)"
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: "Nhãn", widget: string }
+                  - name: type
+                    label: "Loại đích"
+                    widget: select
+                    options:
+                      - { label: "Trang nội bộ", value: "page" }
+                      - { label: "Chuyên mục", value: "category" }
+                      - { label: "URL ngoài", value: "external" }
+                      - { label: "Trang pháp lý", value: "legal" }
+                  - { name: target, label: "Đích", widget: string }
+          - name: pl_footer
+            label: "Menu chân trang PL"
+            widget: list
+            fields:
+              - { name: label, label: "Nhãn", widget: string }
+              - name: type
+                label: "Loại đích"
+                widget: select
+                options:
+                  - { label: "Trang nội bộ", value: "page" }
+                  - { label: "Chuyên mục", value: "category" }
+                  - { label: "URL ngoài", value: "external" }
+                  - { label: "Trang pháp lý", value: "legal" }
+              - { name: target, label: "Đích (đường dẫn / khóa chuyên mục / URL)", widget: string }
+              - { name: new_tab, label: "Mở tab mới", widget: boolean, required: false, default: false }
+              - name: children
+                label: "Mục con (tối đa 1 cấp)"
+                widget: list
+                required: false
+                fields:
+                  - { name: label, label: "Nhãn", widget: string }
+                  - name: type
+                    label: "Loại đích"
+                    widget: select
+                    options:
+                      - { label: "Trang nội bộ", value: "page" }
+                      - { label: "Chuyên mục", value: "category" }
+                      - { label: "URL ngoài", value: "external" }
+                      - { label: "Trang pháp lý", value: "legal" }
+                  - { name: target, label: "Đích", widget: string }
+  # ---- Trang Tac gia / Gioi thieu (them ngoai 13 spec — de Ruler sua khong can mo file) ----
+  - name: about
+    label: "Trang Tác giả / Giới thiệu (About)"
+    label_singular: "Trang Giới thiệu"
+    files:
+      - name: ueber_uns
+        label: "Über uns (DE)"
+        file: "src/de/ueber-uns.md"
+        fields:
+          - { name: title, label: "Tiêu đề", widget: string }
+          - { name: body, label: "Nội dung", widget: markdown }
+          - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/ueber-uns/" }
+      - name: o_nas
+        label: "O nas (PL)"
+        file: "src/pl/o-nas.md"
+        fields:
+          - { name: title, label: "Tytuł", widget: string }
+          - { name: body, label: "Treść", widget: markdown }
+          - { name: layout, label: "Layout (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "/pl/o-nas/" }
+  # ---- Trang phap ly (file collection) ----
+  - name: legal
+    label: "Trang pháp lý (Legal Pages)"
+    label_singular: "Trang pháp lý"
+    files:
+      - name: impressum
+        label: "Impressum (DE)"
+        file: "src/de/impressum.md"
+        fields:
+          - { name: title, label: "Tiêu đề", widget: string }
+          - { name: body, label: "Nội dung", widget: markdown }
+          - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/impressum/" }
+      - name: datenschutz
+        label: "Datenschutz (DE)"
+        file: "src/de/datenschutz.md"
+        fields:
+          - { name: title, label: "Tiêu đề", widget: string }
+          - { name: body, label: "Nội dung", widget: markdown }
+          - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/datenschutz/" }
+      - name: polityka
+        label: "Polityka prywatności (PL)"
+        file: "src/pl/polityka-prywatnosci.md"
+        fields:
+          - { name: title, label: "Tytuł", widget: string }
+          - { name: body, label: "Treść", widget: markdown }
+          - { name: layout, label: "Layout (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "/pl/polityka-prywatnosci/" }
+      - name: kontakt
+        label: "Kontakt (PL)"
+        file: "src/pl/kontakt.md"
+        fields:
+          - { name: title, label: "Tytuł", widget: string }
+          - { name: body, label: "Treść", widget: markdown }
+          - { name: layout, label: "Layout (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "/pl/kontakt/" }
+      - name: kontakt_de
+        label: "Kontakt (DE)"
+        file: "src/de/kontakt.md"
+        fields:
+          - { name: title, label: "Titel", widget: string }
+          - { name: body, label: "Inhalt", widget: markdown }
+          - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/page.njk" }
+          - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/kontakt/" }
+  # ---- Cai dat site (file collection, sua duoc qua CMS) ----
+  - name: settings
+    label: "Cài đặt site (Settings)"
+    label_singular: "Cài đặt"
+    files:
+      - name: settings
+        label: "Tên site, logo, màu, chân trang"
+        file: "src/_data/settings.json"
+        fields:
+          - { name: site_name_de, label: "Tên site (DE)", widget: string }
+          - { name: site_name_pl, label: "Tên site (PL)", widget: string }
+          - { name: tagline_de, label: "Tagline (DE)", widget: string }
+          - { name: tagline_pl, label: "Tagline (PL)", widget: string }
+          - { name: logo_text_de, label: "Logo chữ (DE)", widget: string }
+          - { name: logo_text_pl, label: "Logo chữ (PL)", widget: string }
+          - { name: primary_color, label: "Màu chủ đạo (hex)", widget: string }
+          - { name: accent_color, label: "Màu nhấn (hex)", widget: string }
+          - { name: goatcounter_domain_de, label: "Domain GoatCounter DE (sunbow.goatcounter.com)", widget: string }
+          - { name: goatcounter_domain_pl, label: "Domain GoatCounter PL (plasma.goatcounter.com)", widget: string }
+          - { name: site_url_de, label: "Domain site DE (sunbow.click)", widget: string }
+          - { name: site_url_pl, label: "Domain site PL (plasma.click)", widget: string }
+          - { name: footer_note_de, label: "Câu tuyên bố hư cấu — chân trang (DE)", widget: text }
+          - { name: footer_note_pl, label: "Câu tuyên bố hư cấu — chân trang (PL)", widget: text }
+          - { name: default_author_de, label: "Tác giả mặc định (DE)", widget: string }
+          - { name: default_author_pl, label: "Tác giả mặc định (PL)", widget: string }
