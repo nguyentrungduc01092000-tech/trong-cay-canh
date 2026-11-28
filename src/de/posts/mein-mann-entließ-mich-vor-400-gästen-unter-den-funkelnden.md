@@ -1,14 +1,15 @@
 ---
-title: Mein Mann entließ mich vor 400 Gästen unter den funkelnden
-slug: mein-mann-entlie-mich-vor-400-gsten-unter-den-funkelnden
+title: Mein Mann entließ mich vor 400 Gästen unter den funkelnden Kristalllüstern
+slug: mein-mann-entlie-mich-vor-400-gsten-unter-den-funkelnden-kristalllustern
 description: Elena wird vor 400 Gästen gefeuert, doch ihr Mann hat nie gefragt, wem das Unternehmen gehört. Und jemand hat ihre Arbeit heimlich verändert.
-cover: /media/915320406_122131785351426849_4937062623111013252_n.jpg
+cover: src/media/915320406_122131785351426849_4937062623111013252_n.jpg
 category: Familie und Herz
-date: 2026-11-27 21:40
+tags: []
+date: 2026-11-27
 author: Redaktion
 draft: false
 layout: layouts/post.njk
-permalink: /de//
+permalink: /de/mein-mann-entlie-mich-vor-400-gsten-unter-den-funkelnden-kristalllustern/
 ---
 
 Die Thermoskanne passte in meine Abendtasche, wenn man das Futter ein Stück herauszog.
@@ -106,3 +107,19 @@ Ich dachte an die Mail von 17:02 Uhr. An meinen Login. An jede Datei, die ich je
 Dann dachte ich an die Tasche. An das Futter, das ich ein Stück herausgezogen hatte. An das Gummiband.
 
 Meine Hand lag schon auf dem Verschluss. Er war kalt. Ich weiß nicht, wann ich ihn angefasst hatte.
+
+Ich öffnete die Tasche. Das Gummiband schnappte leise, als ich das Heft herauszog. Es roch nach Kaffee und nach meiner Mutter.
+
+„Drei Freigaben“, sagte ich, und meine Stimme klang fester, als ich erwartet hatte. „Kinderhospiz, zwölfter März. Tafel, achtzehnter April. Frauenhaus, zweiter Mai. Datum, Uhrzeit, Kürzel — alles mit der Hand.“
+
+August nahm das Heft und blätterte langsam.
+
+„Die Unterlagen von Frau Sloane stimmen mit diesem Heft nicht überein“, sagte er. „Jemand hat sie verändert. Die Mehrheit dieses Unternehmens gehört Ihrer Frau, Herr Royce. Seit dem Tod ihrer Mutter.“
+
+Margaret nickte. Nur einmal. Als hätte sie auf genau diesen Abend gewartet.
+
+Camden sagte nichts. Sloane sah auf ihr Glas hinunter. Ihre Hand lag flach daneben. Vierhundert Menschen sahen zu, wie mein Mann keinen Toast probte.
+
+„Ich bleibe bis zum Ende des Abends“, sagte ich. „Morgen entscheiden wir, wer hier was zu sagen hat.“
+
+Alle Geschichten auf dieser Website sind frei erfunden. Personen, Orte und Ereignisse sind Produkte der Fantasie, und jede Ähnlichkeit mit lebenden oder verstorbenen Personen ist rein zufällig.

@@ -2,15 +2,20 @@
 permalink: /index.html
 eleventyExcludeFromCollections: true
 ---
+{# Trang chuyen huong goc — chi ve ngon ngu cua web nay (Phuong an A,
+   Ruler 15:52 27/11). build_lang = "de" | "pl" | "both" (mac dinh "de"
+   khi khong loc). #}
+{% set root_lang = build_lang if build_lang in ["de", "pl"] else "de" %}
+{% set root_url = settings.site_url_de if root_lang == "de" else settings.site_url_pl %}
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ root_lang }}">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=/de/">
-<link rel="canonical" href="https://sunbow.click/de/">
-<title>Weiterleitung / Przekierowanie</title>
+<meta http-equiv="refresh" content="0; url=/{{ root_lang }}/">
+<link rel="canonical" href="{{ root_url }}/{{ root_lang }}/">
+<title>{{ "Weiterleitung" if root_lang == "de" else "Przekierowanie" }}</title>
 </head>
 <body>
-<p><a href="/de/">Deutsch</a> · <a href="/pl/">Polski</a></p>
+<p><a href="/{{ root_lang }}/">{{ "Deutsch" if root_lang == "de" else "Polski" }}</a></p>
 </body>
 </html>

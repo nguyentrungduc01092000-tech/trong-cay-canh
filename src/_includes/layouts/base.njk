@@ -23,11 +23,8 @@
         <input id="search-input" type="search" data-index="/{{ lang }}/search.json" placeholder="{{ search_placeholder }}" autocomplete="off">
       </div>
       {% endif %}
-      <nav class="lang-switch" aria-label="Sprache / Język">
-        <a href="/de/" {% if lang == 'de' %}aria-current="page"{% endif %}>DE</a>
-        <span aria-hidden="true">|</span>
-        <a href="/pl/" {% if lang == 'pl' %}aria-current="page"{% endif %}>PL</a>
-      </nav>
+      {# Nut chuyen ngon ngu DE|PL da bo (Phuong an A, Ruler 15:52 27/11):
+         moi web chi 1 ngon ngu, khong link sang ngon ngu kia. #}
     </div>
   </div>
   <p class="tagline wrap">{{ tagline }}</p>
@@ -45,7 +42,7 @@
       {% else %}
         <a href="/pl/polityka-prywatnosci/">Polityka prywatności</a> · <a href="#" id="cookie-settings">Ustawienia plików cookie</a> · <a href="/pl/kontakt/">Kontakt</a> · <a href="/pl/o-nas/">O nas</a>
       {% endif %}
-      · <a href="/dashboard/">Dashboard</a>
+      {% if build_lang != "pl" %} · <a href="/dashboard/">Dashboard</a>{% endif %}
     </nav>
     <p class="fiction-note">{{ settings.footer_note_de if lang == 'de' else settings.footer_note_pl }}</p>
     <p class="copyright">© {{ "now" | date("%Y") }} {{ site_name }}</p>

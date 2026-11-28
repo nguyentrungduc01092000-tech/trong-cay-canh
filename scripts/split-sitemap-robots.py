@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
-"""Tach sitemap.xml + robots.txt theo ten mien (moi domain 1 sitemap/robots rieng).
+"""Kiem chung + loc sitemap.xml + robots.txt theo ten mien (moi domain 1
+sitemap/robots rieng).
 
-Ly do (Ruler 08:50 27/11/2026, Claude quet live sunbow.click): sitemap.xml cua
-sunbow.click chua 57 muc (30 sunbow + 27 plasma) va robots.txt khai ca 2 dong
-Sitemap — Google xem sitemap chua URL ten mien khac la loi, lai lo lien ket
-giua 2 web. Moi domain chi duoc liet ke URL cua chinh no.
+Ly do (Ruler 08:50 27/11/2026): sitemap.xml cua sunbow.click chua 57 muc
+(30 sunbow + 27 plasma) va robots.txt khai ca 2 dong Sitemap — Google xem
+sitemap chua URL ten mien khac la loi, lai lo lien ket giua 2 web. Moi
+domain chi duoc liet ke URL cua chinh no.
+
+Phuong an A (Ruler 15:52 27/11/2026): build da loc theo ngon ngu
+(SITE_LANG=de|pl) nen sitemap/robots sinh ra DA theo domain — script nay
+chuyen thanh che do KIEM CHUNG: chap nhan sitemap da tach san (khong con
+muc nao de bo la binh thuong, KHONG loi); chi khi build gop (con muc cua
+domain kia) moi loc bo — luoi an toan cuoi. Kiem lai thanh pham o cuoi
+dam bao khong con URL/dong Sitemap cua domain kia.
 
 Dung o 2 cho (ca 2 deu SAU khi build xong):
-  - CI: deploy-pages.yml (sau gate — gate kiem ban gop 57 loc / 2 dong
-    Sitemap) va scheduled-build.yml (sau buoc Copy CNAME), truoc khi upload
-    artifact. Domain lay tu file CNAME o goc repo.
-  - Push script local: chay kiem chung tren _site cua work dir sau khi gate dat
-    (khong commit — _site nam trong .gitignore; ban that tach o CI).
+  - CI: deploy-pages.yml (sau gate — gate kiem ban theo domain) va
+    scheduled-build.yml (sau buoc Copy CNAME), truoc khi upload artifact.
+    Domain lay tu file CNAME o goc repo.
+  - Push script local: chay kiem chung tren _site cua work dir sau khi gate
+    dat (khong commit — _site nam trong .gitignore; ban that tach o CI).
 
-Chi loc 2 file trong _site, KHONG doi template nguon (template van sinh ban
-gop du 57 loc — gate kiem toan bo trang o do). Loi thi exit != 0.
+Chi loc 2 file trong _site, KHONG doi template nguon. Loi thi exit != 0.
 """
 import argparse
 import re
@@ -78,8 +85,9 @@ def main():
             return fail(f"URL la khong thuoc domain nao: {u}")
     if not kept:
         return fail(f"khong giu duoc muc nao cho {dom}")
-    if not dropped:
-        return fail(f"khong bo duoc muc nao (ban gop phai co ca 2 domain)")
+    # (Phuong an A) Build da loc theo ngon ngu nen sitemap thuong da theo
+    # domain (khong co muc nao de bo) — do la truong hop binh thuong, KHONG
+    # loi. Chi khi build gop (con muc cua domain kia) moi can loc.
     new_text = m_head.group(1) + "\n" + "\n".join(kept) + "\n</urlset>\n"
     sm.write_text(new_text, encoding="utf-8")
 
@@ -105,8 +113,12 @@ def main():
         return fail(f"sitemap.xml sau tach van con URL {other}")
     if f"https://{other}/" in rb.read_text(encoding="utf-8"):
         return fail(f"robots.txt sau tach van con {other}")
-    print(f"split-sitemap: DAT ({dom}: sitemap giu {len(kept)}/{len(blocks)} loc, "
-          f"bo {len(dropped)} loc {other}; robots chi 1 dong Sitemap {dom})")
+    if dropped:
+        print(f"split-sitemap: CANH BAO — build gop (co {len(dropped)} loc {other}), "
+              f"da loc thanh {dom} ({len(kept)}/{len(blocks)} loc); robots chi 1 dong Sitemap {dom}")
+    else:
+        print(f"split-sitemap: DAT ({dom}: sitemap da theo domain ({len(kept)} loc, "
+              f"0 loc {other}); robots chi 1 dong Sitemap {dom})")
     return 0
 
 

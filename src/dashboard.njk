@@ -24,6 +24,8 @@ description: "Dashboard mit Statistiken zum Stand des letzten Builds: veröffent
         {% else %}—{% endif %}
       </td>
     </tr>
+    {# Hang PL chi hien khi khong build loc tieng Duc (Phuong an A, Ruler 15:52 27/11). #}
+    {% if build_lang != "de" %}
     <tr>
       <td>Polski (PL)</td>
       <td>{{ collections.posts_pl | length }}</td>
@@ -35,6 +37,7 @@ description: "Dashboard mit Statistiken zum Stand des letzten Builds: veröffent
         {% else %}—{% endif %}
       </td>
     </tr>
+    {% endif %}
   </tbody>
 </table>
 
@@ -43,8 +46,10 @@ description: "Dashboard mit Statistiken zum Stand des letzten Builds: veröffent
   {% if settings.goatcounter_domain_de and '[GIỮ CHỖ' not in settings.goatcounter_domain_de %}
     <a href="https://{{ settings.goatcounter_domain_de }}/">GoatCounter-Statistik (DE) öffnen</a><br>
   {% endif %}
+  {% if build_lang != "de" %}
   {% if settings.goatcounter_domain_pl and '[GIỮ CHỖ' not in settings.goatcounter_domain_pl %}
     <a href="https://{{ settings.goatcounter_domain_pl }}/">GoatCounter-Statistik (PL) öffnen</a>
+  {% endif %}
   {% endif %}
 </p>
 
@@ -53,10 +58,12 @@ description: "Dashboard mit Statistiken zum Stand des letzten Builds: veröffent
 {% for post in collections.scheduled_de %}
   <li>DE: {{ post.data.title }} — {{ post.date | dateLocalized('de-DE') }}</li>
 {% endfor %}
+{% if build_lang != "de" %}
 {% for post in collections.scheduled_pl %}
   <li>PL: {{ post.data.title }} — {{ post.date | dateLocalized('pl-PL') }}</li>
 {% endfor %}
+{% endif %}
 {% if collections.scheduled_de.length == 0 and collections.scheduled_pl.length == 0 %}
-  <li>Keine geplanten Geschichten. / Brak zaplanowanych opowieści.</li>
+  <li>Keine geplanten Geschichten.{% if build_lang != "de" %} / Brak zaplanowanych opowieści.{% endif %}</li>
 {% endif %}
 </ul>

@@ -3,7 +3,7 @@
 # deployment > Source: "GitHub Actions"), dien file CNAME o goc repo (ten mien
 # cua repo nay: sunbow.click HOAC plasma.click — xem CAU-TRUC-REPO.md),
 # dien `repo:` trong src/admin/config.yml thanh repo that.
-# Khac ban goc trong site/.github/workflows/deploy-pages.yml o 3 cho:
+# Khac ban goc trong site/.github/workflows/deploy-pages.yml o 4 cho:
 #  (1) buoc "Copy CNAME" — Pages mat custom domain neu artifact thieu file
 #      CNAME, ke ca deploy dinh ky (scheduled-build.yml cung co buoc nay);
 #  (2) buoc "Pre-push gate" — chay pre-push-check-truyen.py SAU khi build,
@@ -11,7 +11,10 @@
 #  (3) buoc "Split sitemap/robots" (27/11/2026, Ruler 08:50) — moi domain chi
 #      duoc co sitemap/robots cua chinh no (sunbow 30 loc, plasma 27 loc);
 #      ban gop 57 loc + 2 dong Sitemap la loi voi Google. Chay SAU gate
-#      (gate kiem ban gop), TRUOC upload artifact; domain lay tu file CNAME.
+#      (gate kiem ban theo domain), TRUOC upload artifact; domain lay tu CNAME.
+#  (4) buoc "Set SITE_LANG from CNAME" (Phuong an A, Ruler 15:52 27/11) —
+#      moi web chi build 1 ngon ngu (sunbow -> de, plasma -> pl); chay TRUOC
+#      npm run build. Khong co buoc nay, build sinh ca 2 ngon ngu.
 name: Deploy to GitHub Pages
 
 on:
@@ -38,6 +41,20 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      # Phuong an A (Ruler 15:52 27/11): moi web chi build 1 ngon ngu.
+      # Doc CNAME de biet domain nay (sunbow.click -> de, plasma.click -> pl)
+      # roi dat SITE_LANG cho buoc build sau (GITHUB_ENV ap dung cho cac buoc
+      # tiep theo trong job). Domain la thi loi ngay.
+      - name: Set SITE_LANG from CNAME
+        run: |
+          test -f CNAME || { echo "THIEU file CNAME o goc repo — dung deploy"; exit 1; }
+          DOMAIN=$(cat CNAME | tr -d '[:space:]')
+          case "$DOMAIN" in
+            sunbow.click) echo "SITE_LANG=de" >> $GITHUB_ENV ;;
+            plasma.click) echo "SITE_LANG=pl" >> $GITHUB_ENV ;;
+            *) echo "CNAME khong hop le: $DOMAIN (can sunbow.click|plasma.click)"; exit 1 ;;
+          esac
+          echo "SITE_LANG da dat theo CNAME=$DOMAIN"
       - run: npm run build
       - name: Copy CNAME into _site
         run: |
@@ -48,13 +65,17 @@ jobs:
       # --site-dir . : trong repo, goc site CHINH LA goc repo (src/ + _site/ o day);
       # khong truyen thi gate mac dinh tim <cha-cua-repo>/site (khong co trong CI)
       # va truot "khong co _site" (run 45921989405 ngay 27/11).
-      - name: Pre-push gate (20 DE / 19 PL)
-        run: python3 scripts/pre-push-check-truyen.py --expect-de 20 --expect-pl 19 --no-build --site-dir .
-      # Tach sitemap/robots theo domain (Ruler 08:50 27/11): gate o tren kiem
-      # ban gop (57 loc, 2 dong Sitemap); buoc nay loc _site/sitemap.xml chi
-      # con URL cua domain trong CNAME + robots.txt chi 1 dong Sitemap cua
-      # domain do, roi moi upload artifact. Loi thi dung deploy.
-      - name: Split sitemap/robots per domain (CNAME)
+      # Phuong an A: gate lay --domain tu CNAME de kiem ban theo domain
+      # (sunbow 20 DE / 0 PL, plasma 0 DE / 19 PL); so truyen mac dinh theo domain.
+      - name: Pre-push gate (per-domain)
+        run: |
+          DOMAIN=$(cat CNAME | tr -d '[:space:]')
+          python3 scripts/pre-push-check-truyen.py --no-build --site-dir . --domain "$DOMAIN"
+      # Kiem chung sitemap/robots theo domain (Ruler 08:50 27/11, Phuong an A
+      # 15:52 27/11): build da loc theo ngon ngu (SITE_LANG) nen sitemap/robots
+      # sinh ra da theo domain; buoc nay chi kiem chung (va loc neu con sot
+      # muc cua domain kia), roi moi upload artifact. Loi thi dung deploy.
+      - name: Verify sitemap/robots per domain (CNAME)
         run: python3 scripts/split-sitemap-robots.py --site-dir .
       - uses: actions/upload-pages-artifact@v3
         with:

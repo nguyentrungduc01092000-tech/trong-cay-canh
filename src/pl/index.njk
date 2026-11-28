@@ -19,7 +19,7 @@ permalink: /pl/
 
 <ul id="post-grid" class="grid">
 {% for post in collections.posts_pl %}
-  <li class="card" data-slug="{{ post.data.slug }}" data-search="{{ post.data.title }} {{ post.data.description }} {{ post.data.category }} {{ post.data.tags | join(' ') }}">
+  <li class="card" data-slug="{{ post.data.slug }}" data-search="{{ post.data.title }} {{ post.data.description }} {{ post.data.category }} {{ (post.data.tags or []) | join(' ') }}">
     {% if post.data.cover %}
     <a href="{{ post.url }}" tabindex="-1" aria-hidden="true">{% image post.data.cover, post.data.title %}</a>
     {% endif %}

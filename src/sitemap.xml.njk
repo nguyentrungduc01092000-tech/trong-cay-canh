@@ -13,8 +13,14 @@ eleventyExcludeFromCollections: true
   <url><loc>{{ purl }}{{ page.url }}</loc></url>
 {%- endif %}
 {%- endfor %}
+{# Khi build loc 1 ngon ngu (SITE_LANG), chi liet ke chuyen muc cua ngon ngu
+   do; khi khong loc (both) thi liet ke ca 2 nhu cu. #}
 {%- for cat in categories %}
+  {%- if build_lang != "pl" %}
   <url><loc>{{ settings.site_url_de }}/de/kategorie/{{ cat.key }}/</loc></url>
+  {%- endif %}
+  {%- if build_lang != "de" %}
   <url><loc>{{ settings.site_url_pl }}/pl/kategoria/{{ cat.key }}/</loc></url>
+  {%- endif %}
 {%- endfor %}
 </urlset>

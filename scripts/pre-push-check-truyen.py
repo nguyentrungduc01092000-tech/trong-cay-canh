@@ -10,24 +10,33 @@ Usage:
     --domain   : kiem them file CNAME cua repo nay (sunbow.click hoac plasma.click)
 
 Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
-  0. Build: npm run build exit 0 (build tang dan, KHONG rm -rf _site).
+  0. Build: npm run build exit 0 (build tang dan, KHONG rm -rf _site; khi co
+     --domain/SITE_LANG thi truyen SITE_LANG vao build va xoa tay thu muc cu
+     cua ngon ngu kia trong _site truoc khi build — build tang dan khong tu
+     xoa file cu).
   1. So truyen: moi web du --expect truyen da build; file .md nguon khop so truyen
      da build (truyen nhap/hen gio chua len se bi neu ten); moi URL truyen co
-     trong sitemap.
-  2. Sitemap: XML hop le; tong loc = truyen DE + truyen PL + 18 trang co dinh
-     (2 trang chu + dashboard + 7 phap ly/gioi thieu + 8 chuyen muc);
-     sunbow = truyen DE + 10, plasma = truyen PL + 8; URL nao sai domain thi truot.
-  3. robots.txt: Allow /; chi Disallow /admin/; dung 2 dong Sitemap theo thu tu
+     trong sitemap. (Phuong an A) Ngon ngu kia KHONG build: phai co 0 truyen
+     da build nhung file .md nguon van phai con (chung minh khong xoa khoi repo).
+  2. Sitemap (Phuong an A): XML hop le; KHI CO --domain (hoac SITE_LANG):
+     chi URL cua domain do — sunbow = truyen DE + 10 (trang chu DE +
+     dashboard + 4 phap ly DE + 4 chuyen muc DE), plasma = truyen PL + 8
+     (trang chu PL + 3 phap ly PL + 4 chuyen muc PL); URL domain kia = truot.
+     KHI KHONG CO --domain: ban gop cu (tong = DE + PL + 18).
+  3. robots.txt: Allow /; chi Disallow /admin/; KHI CO --domain: dung 1 dong
+     Sitemap cua domain do; KHI KHONG CO --domain: dung 2 dong theo thu tu
      [sunbow, plasma]; khong chan bot quang cao/Googlebot.
   4. Canonical: moi file HTML (tru admin/index.html) co dung 1 canonical
      tuyet doi, dung domain theo ngon ngu (/de/* + /dashboard/ -> sunbow,
-     /pl/* -> plasma, trang goc / -> https://sunbow.click/de/); khong co
-     canonical tro github.io/localhost/domain khac.
-  5. Email that: nguyentrungduc01092000@gmail.com CHI o 5 trang phap ly
-     (de/impressum, de/datenschutz, de/kontakt, pl/kontakt,
-     pl/polityka-prywatnosci) va du ca 5 trang; ten "Nguyen Trung Duc" (khong
-     dau) du o Impressum/Datenschutz/Polityka; "Nguyễn Trung Đức" (co dau) = 0;
-     tu "Ruler" = 0 trong chu hien thi (quyet Ruler 14:00/14:02/14:08).
+     /pl/* -> plasma; trang goc / -> https://sunbow.click/de/ o ban de,
+     https://plasma.click/pl/ o ban pl); khong co canonical tro
+     github.io/localhost/domain khac.
+  5. Email that: nguyentrungduc01092000@gmail.com CHI o trang phap ly cua
+     ngon ngu do (ban de: de/impressum, de/datenschutz, de/kontakt; ban pl:
+     pl/kontakt, pl/polityka-prywatnosci) va du ca trang; ten "Nguyen Trung
+     Duc" (khong dau) du o Impressum/Datenschutz (ban de) / Polityka
+     (ban pl); "Nguyễn Trung Đức" (co dau) = 0; tu "Ruler" = 0 trong chu
+     hien thi (quyet Ruler 14:00/14:02/14:08).
   6. AdSense BAT (Ruler 11:42 27/11): moi HTML dung base.njk dung 1 lan
      "ca-pub-1934454305970765"; admin/index.html + index.html (trang chuyen
      huong, khong dung base.njk) = 0; ads.txt ton tai dung 1 dong; khong co
@@ -41,9 +50,11 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      .txt/.svg/.webp/.avif/.jpeg/.jpg/.png/.gif/.ico/CNAME); khong co .md,
      khong co node_modules; admin/config.yml phai co.
   9. CNAME/workflow: file CNAME o goc repo (workflow copy vao _site) chi chua
-     dung 1 domain; .github/workflows/deploy-pages.yml phai co buoc copy CNAME
-     VA buoc tach sitemap/robots theo domain (split-sitemap-robots — Ruler
-     08:50 27/11: moi domain chi co sitemap/robots cua chinh no).
+     dung 1 domain; CA 2 workflow (deploy-pages.yml + scheduled-build.yml)
+     phai co buoc copy CNAME, buoc kiem chung sitemap/robots theo domain
+     (split-sitemap-robots — Ruler 08:50 27/11: moi domain chi co
+     sitemap/robots cua chinh no) VA buoc dat SITE_LANG theo CNAME (Phuong
+     an A — neu khong, rebuild dinh ky se dua ban gop len live lai).
      (Chua co repo thi muc nay TRUOT — dung, doi Ruler tao repo + dien CNAME.)
  10. Cau hu cau: moi trang truyen + 2 trang chu deu co cau tuyen bo hu cau
      dung ngon ngu (DE "Alle Geschichten auf dieser Website sind frei
@@ -59,11 +70,27 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      moi file duoi _site/admin/ co 0 dong bat dau bang # (sau khoang trang
      dau dong), 0 chu thich HTML <!-- -->, 0 tu "Ruler"/"GIỮ CHỖ"; trang
      admin co meta noindex; robots.txt Disallow /admin/ (muc 3 kiem robots).
+ 13. Mot ngon ngu moi web (Phuong an A, Ruler 15:52 27/11 — CHI chay khi co
+     --domain hoac SITE_LANG): _site KHONG co thu muc/trang cua ngon ngu kia
+     (ke ca /dashboard/ o ban pl); 0 link noi bo (href) toi ngon ngu kia;
+     0 chuoi domain kia trong HTML da dung; khong con nut chuyen ngon ngu
+     (lang-switch); canonical moi trang tu tro ve domain dang kiem;
+     admin da dung chi co collection posts cua ngon ngu do + du About/Legal
+     cua ngon ngu do; config nguon van du ca 2 collection (chung minh khong
+     xoa khoi repo).
+ 14. Front matter cua file do CMS tao (Ruler 10:14 28/11): moi bai .md phai
+     co date chi ngay (khong gio), slug [a-z0-9-]+, cover tro toi file that
+     (chap nhan ca src/media/ va /media/), permalink neu co phai dung
+     /<lang>/<slug>/ hoac mau /<lang>/{{ slug }}/ (thieu thi OK — build tinh
+     tu slug), layout dung, tags neu co phai la list (thieu thi OK — build
+     chiu duoc).
 
 Exit 0 = DAT het (cho phep day). Exit 1 = co muc truot (CHAN day).
 """
 import argparse
+import os
 import re
+import shutil
 import subprocess
 import sys
 import unicodedata
@@ -94,6 +121,18 @@ def visible_text(html):
     return re.sub(r"\s+", " ", t).strip()
 
 
+def resolve_cover_path(raw):
+    """Duong dan cover trong front matter -> duong dan dia tuong doi goc site.
+    Chap nhan ca 'src/media/...' (file doi viet) va '/media/...' (Sveltia ghi
+    theo public_folder) — ca 2 deu tro toi src/media/... tren dia."""
+    p = raw.strip().strip("\"'")
+    if p.startswith("/"):
+        p = p[1:]
+    if p.startswith("media/"):
+        p = "src/" + p
+    return p
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--site-dir", default=None)
@@ -111,8 +150,27 @@ def main():
     out = site / "_site"
     src = site / "src"
     ok = True
-    expect = {"de": a.expect_de if a.expect_de is not None else a.expect,
-              "pl": a.expect_pl if a.expect_pl is not None else a.expect}
+    # Ngon ngu dang kiem (Phuong an A, Ruler 15:52 27/11): --domain quyet dinh;
+    # neu khong co --domain thi lay SITE_LANG; neu ca 2 deu khong co thi kiem
+    # ban gop cu (ca 2 ngon ngu). LANG=None = ban gop.
+    DOMAIN_LANG = {"sunbow.click": "de", "plasma.click": "pl"}
+    if a.domain:
+        if a.domain not in DOMAIN_LANG:
+            print(f"--domain phai la sunbow.click hoac plasma.click (nhan {a.domain!r})")
+            sys.exit(2)
+        LANG = DOMAIN_LANG[a.domain]
+    elif os.environ.get("SITE_LANG") in ("de", "pl"):
+        LANG = os.environ["SITE_LANG"]
+    else:
+        LANG = None
+    DOMAIN = {"de": "sunbow.click", "pl": "plasma.click"}.get(LANG)
+    # So truyen ky vong: khi co --domain, mac dinh theo domain (sunbow 20 DE /
+    # 0 PL; plasma 0 DE / 19 PL); --expect-de/--expect-pl truyen ro se ghi de.
+    if LANG and a.expect_de is None and a.expect_pl is None:
+        expect = {"de": 20, "pl": 0} if LANG == "de" else {"de": 0, "pl": 19}
+    else:
+        expect = {"de": a.expect_de if a.expect_de is not None else a.expect,
+                  "pl": a.expect_pl if a.expect_pl is not None else a.expect}
 
     def fail(msg):
         nonlocal ok
@@ -123,10 +181,31 @@ def main():
     if a.no_build:
         print("0. Build: BO QUA (--no-build, dung _site hien co)")
     else:
-        print("0. Build: dang chay `npm run build` (tang dan, khong xoa _site)...")
+        print("0. Build: dang chay `npm run build` (tang dan, khong xoa _site)"
+              + (f" [SITE_LANG={LANG}]" if LANG else " [ban gop]") + "...")
         try:
+            # (Phuong an A) Build tang dan KHONG xoa file cu trong _site, nen
+            # phai xoa tay thu muc cua ngon ngu kia (neu con tu ban gop truoc)
+            # truoc khi build — neu khong, trang cu cua ngon ngu kia van nam
+            # trong _site va muc 13 se truot. Giu lai _site/img (cache anh).
+            if LANG:
+                other_lang = "pl" if LANG == "de" else "de"
+                stale = out / other_lang
+                if stale.exists():
+                    shutil.rmtree(stale)
+                    print(f"   (da xoa thu muc cu _site/{other_lang}/ cua ngon ngu kia)")
+                if LANG == "pl":
+                    dash = out / "dashboard"
+                    if dash.exists():
+                        shutil.rmtree(dash)
+                        print("   (da xoa thu muc cu _site/dashboard/ — chi co tren ban de)")
+            # Truyen SITE_LANG vao build de loc dung ngon ngu.
+            build_env = dict(os.environ)
+            if LANG:
+                build_env["SITE_LANG"] = LANG
             r = subprocess.run(["npm", "run", "build"], cwd=site,
-                               capture_output=True, text=True, timeout=1500)
+                               capture_output=True, text=True, timeout=1500,
+                               env=build_env)
             tail = (r.stdout + r.stderr).strip().splitlines()[-3:]
             if r.returncode != 0:
                 fail(f"npm run build exit={r.returncode}: {'; '.join(tail)}")
@@ -157,7 +236,17 @@ def main():
         src_n = len(list((src / lang / "posts").glob("*.md"))) if (src / lang / "posts").exists() else 0
         src_slugs = {p.stem for p in (src / lang / "posts").glob("*.md")} if (src / lang / "posts").exists() else set()
         missing_build = sorted(src_slugs - set(built[lang]))
-        if len(built[lang]) != expect[lang] or src_n != len(built[lang]):
+        if LANG and lang != LANG:
+            # (Phuong an A) Ngon ngu kia KHONG build: phai co 0 truyen da build
+            # nhung file .md nguon van phai con (chung minh khong xoa khoi repo).
+            if len(built[lang]) != 0 or src_n == 0:
+                fail(f"{lang}: ban {LANG} khong duoc build truyen {lang} "
+                     f"(da build {len(built[lang])}); .md nguon {src_n} "
+                     f"(phai > 0 — file nguon phai giu trong repo)")
+            else:
+                print(f"1. So truyen {lang}: DAT (khong build — dung Phuong an A; "
+                      f".md nguon van giu {src_n} file trong repo)")
+        elif len(built[lang]) != expect[lang] or src_n != len(built[lang]):
             fail(f"{lang}: build duoc {len(built[lang])} truyen (can {expect[lang]}); "
                  f".md nguon {src_n} (khong co trang build: {missing_build or 'khong co'})")
         else:
@@ -179,9 +268,17 @@ def main():
                 locs.append(loc.text.strip())
         n_de = len(built.get("de", []))
         n_pl = len(built.get("pl", []))
-        exp_total = n_de + n_pl + 18
-        exp_sun = n_de + 10  # trang chu DE + dashboard + 4 phap ly DE + 4 chuyen muc DE
-        exp_pla = n_pl + 8   # trang chu PL + 3 phap ly PL + 4 chuyen muc PL
+        # (Phuong an A) Khi co --domain/SITE_LANG, sitemap chi chua URL cua
+        # domain do: sunbow = truyen DE + 10, plasma = truyen PL + 8.
+        # Khi khong co, ban gop cu: tong = DE + PL + 18.
+        if LANG == "de":
+            exp_total, exp_sun, exp_pla = n_de + 10, n_de + 10, 0
+        elif LANG == "pl":
+            exp_total, exp_sun, exp_pla = n_pl + 8, 0, n_pl + 8
+        else:
+            exp_total = n_de + n_pl + 18
+            exp_sun = n_de + 10  # trang chu DE + dashboard + 4 phap ly DE + 4 chuyen muc DE
+            exp_pla = n_pl + 8   # trang chu PL + 3 phap ly PL + 4 chuyen muc PL
         sun = sum(1 for l in locs if l.startswith(SUN + "/"))
         pla = sum(1 for l in locs if l.startswith(PLA + "/"))
         wrong = [l for l in locs
@@ -225,12 +322,20 @@ def main():
         sitemaps = re.findall(r"^Sitemap:\s*(https://\S+)", text, flags=re.M)
         disallows = re.findall(r"^Disallow:\s*(.*)$", text, flags=re.M | re.I)
         bad_dis = [d for d in disallows if d.strip() not in ("/admin/", "/admin")]
-        if (sitemaps != [SUN + "/sitemap.xml", PLA + "/sitemap.xml"]
+        # (Phuong an A) Khi co --domain/SITE_LANG: dung 1 dong Sitemap cua
+        # domain do; khi khong co: dung 2 dong [sunbow, plasma] nhu cu.
+        if LANG == "de":
+            exp_sitemaps = [SUN + "/sitemap.xml"]
+        elif LANG == "pl":
+            exp_sitemaps = [PLA + "/sitemap.xml"]
+        else:
+            exp_sitemaps = [SUN + "/sitemap.xml", PLA + "/sitemap.xml"]
+        if (sitemaps != exp_sitemaps
                 or "Allow: /" not in text or bad_dis):
-            fail(f"robots: Sitemap={sitemaps} (can {[SUN + '/sitemap.xml', PLA + '/sitemap.xml']}); "
+            fail(f"robots: Sitemap={sitemaps} (can {exp_sitemaps}); "
                  f"Disallow={disallows} (chi duoc /admin/)")
         else:
-            print("3. robots.txt: DAT (Allow /; chi Disallow /admin/; dung 2 dong Sitemap)")
+            print(f"3. robots.txt: DAT (Allow /; chi Disallow /admin/; dung {len(exp_sitemaps)} dong Sitemap)")
 
     # ---------- 4. Canonical ----------
     canon_bad = []
@@ -245,7 +350,8 @@ def main():
             continue
         got = ms[0]
         if rel == "index.html":
-            exp = SUN + "/de/"
+            # Trang goc chuyen ve ngon ngu cua web nay (Phuong an A).
+            exp = SUN + "/de/" if LANG != "pl" else PLA + "/pl/"
         else:
             url = "/" + rel[:-len("index.html")] if rel.endswith("index.html") else "/" + rel
             exp_host = "sunbow.click" if (url.startswith("/de/") or url == "/dashboard/") else "plasma.click"
@@ -263,23 +369,34 @@ def main():
         t = nfc(h.read_text(encoding="utf-8", errors="ignore"))
         if EMAIL in t:
             email_files.append(str(h.relative_to(out)))
+    # (Phuong an A) Chi kiem trang phap ly cua ngon ngu do: ban de 3 trang,
+    # ban pl 2 trang; ban gop thi du 5 trang nhu cu.
+    if LANG == "de":
+        legal_rels = ("de/impressum", "de/datenschutz", "de/kontakt")
+        name_pages = ("de/impressum", "de/datenschutz")
+    elif LANG == "pl":
+        legal_rels = ("pl/polityka-prywatnosci", "pl/kontakt")
+        name_pages = ("pl/polityka-prywatnosci",)
+    else:
+        legal_rels = LEGAL_RELS
+        name_pages = ("de/impressum", "de/datenschutz", "pl/polityka-prywatnosci")
     email_rels = {f[:-len("/index.html")] if f.endswith("/index.html") else f
                   for f in email_files}
-    email_extra = sorted(email_rels - set(LEGAL_RELS))
-    email_missing = sorted(set(LEGAL_RELS) - email_rels)
+    email_extra = sorted(email_rels - set(legal_rels))
+    email_missing = sorted(set(legal_rels) - email_rels)
     name_ok = all(EMAIL in "" or "Nguyen Trung Duc" in nfc((out / (lr + "/index.html")).read_text(encoding="utf-8", errors="ignore"))
-                  for lr in ("de/impressum", "de/datenschutz", "pl/polityka-prywatnosci"))
+                  for lr in name_pages)
     diacritic = [str(h.relative_to(out)) for h in htmls
                  if "Nguyễn Trung Đức" in nfc(h.read_text(encoding="utf-8", errors="ignore"))]
     ruler_hits = [str(h.relative_to(out)) for h in htmls
                   if re.search(r"\bRuler\b", visible_text(nfc(h.read_text(encoding="utf-8", errors="ignore"))))]
     if email_extra or email_missing or not name_ok or diacritic or ruler_hits:
-        fail(f"email: ngoai 5 trang phap ly: {email_extra}; thieu o trang phap ly: "
-             f"{email_missing}; ten 'Nguyen Trung Duc' du o 3 trang phap ly chinh: "
+        fail(f"email: ngoai {len(legal_rels)} trang phap ly: {email_extra}; thieu o trang phap ly: "
+             f"{email_missing}; ten 'Nguyen Trung Duc' du o {len(name_pages)} trang phap ly chinh: "
              f"{'co' if name_ok else 'THIEU'}; ten co dau: {diacritic}; tu 'Ruler' "
              f"trong chu hien thi: {ruler_hits}")
     else:
-        print("5. Email that: DAT (chi o dung 5 trang phap ly; ten dung dang khong dau; "
+        print(f"5. Email that: DAT (chi o dung {len(legal_rels)} trang phap ly; ten dung dang khong dau; "
               "0 'Nguyễn Trung Đức'; 0 tu 'Ruler')")
 
     # ---------- 6. AdSense BAT ----------
@@ -355,7 +472,6 @@ def main():
 
     # ---------- 9. CNAME / workflow ----------
     cname = site / "CNAME"
-    wf = site / ".github/workflows/deploy-pages.yml"
     cname_bad = []
     if not cname.exists():
         cname_bad.append("khong co file CNAME o goc repo")
@@ -365,20 +481,29 @@ def main():
             cname_bad.append(f"CNAME chua '{dom}' (phai la sunbow.click hoac plasma.click)")
         elif a.domain and dom != a.domain:
             cname_bad.append(f"CNAME '{dom}' khac --domain {a.domain}")
+    # (Phuong an A) Ca 2 workflow phai co: copy CNAME + kiem chung
+    # sitemap/robots theo domain + dat SITE_LANG theo CNAME (neu khong,
+    # rebuild dinh ky se dua ban gop len live lai).
+    wf_files = [site / ".github/workflows/deploy-pages.yml",
+                site / ".github/workflows/scheduled-build.yml"]
     wf_bad = []
-    if not wf.exists():
-        wf_bad.append("khong co .github/workflows/deploy-pages.yml")
-    else:
+    for wf in wf_files:
+        if not wf.exists():
+            wf_bad.append(f"khong co {wf.relative_to(site)}")
+            continue
         wf_text = wf.read_text(encoding="utf-8", errors="ignore")
-        if "CNAME" not in wf_text:
-            wf_bad.append("workflow khong co buoc copy CNAME vao _site")
+        wname = str(wf.relative_to(site))
+        if "cp CNAME _site/CNAME" not in wf_text:
+            wf_bad.append(f"{wname}: khong co buoc copy CNAME vao _site")
         if "split-sitemap-robots" not in wf_text:
-            wf_bad.append("workflow khong co buoc tach sitemap/robots theo domain")
+            wf_bad.append(f"{wname}: khong co buoc kiem chung sitemap/robots theo domain")
+        if "SITE_LANG" not in wf_text:
+            wf_bad.append(f"{wname}: khong co buoc dat SITE_LANG theo CNAME")
     if cname_bad or wf_bad:
         fail(f"CNAME/workflow: {cname_bad}; {wf_bad}")
     else:
         dom = cname.read_text(encoding="utf-8", errors="ignore").strip()
-        print(f"9. CNAME/workflow: DAT (CNAME={dom}; workflow co buoc copy CNAME + tach sitemap/robots)")
+        print(f"9. CNAME/workflow: DAT (CNAME={dom}; 2 workflow co buoc copy CNAME + kiem chung sitemap/robots + SITE_LANG)")
 
     # ---------- 10. Cau hu cau ----------
     fic_bad = []
@@ -393,7 +518,9 @@ def main():
     if fic_bad:
         fail(f"cau hu cau thieu o: {fic_bad}")
     else:
-        print(f"10. Cau hu cau: DAT (du tren {len(built.get('de', [])) + len(built.get('pl', []))} trang truyen + 2 trang chu)")
+        # So trang chu that su da kiem (ban theo domain chi co 1 trang chu).
+        n_home = sum(1 for lang in ("de", "pl") if (out / lang / "index.html").exists())
+        print(f"10. Cau hu cau: DAT (du tren {len(built.get('de', [])) + len(built.get('pl', []))} trang truyen + {n_home} trang chu)")
 
     # ---------- 11. Anh bia: moi the co anh tai duoc ----------
     # (Ruler 07:41 ngay 27/11: demo tach anh ra assets lam anh Duc chi thay
@@ -409,7 +536,7 @@ def main():
             if not m:
                 img_bad.append(f"{lang}/{md.stem}: khong co truong cover")
                 continue
-            f = site / m.group(1)
+            f = site / resolve_cover_path(m.group(1))
             if not f.is_file():
                 img_bad.append(f"{lang}/{md.stem}: cover khong co file {m.group(1)}")
             elif f.stat().st_size == 0:
@@ -476,6 +603,159 @@ def main():
         fail(f"admin sach: {admin_bad}")
     else:
         print("12. Admin sach: DAT (0 dong # + 0 chu thich HTML + 0 tu noi bo trong _site/admin/; admin co noindex)")
+
+    # ---------- 13. Mot ngon ngu moi web (Phuong an A) ----------
+    # Chi chay khi co --domain hoac SITE_LANG (LANG is not None). Khi khong
+    # co, ban gop la hanh vi cu nen bo qua.
+    if LANG is None:
+        print("13. Mot ngon ngu: BO QUA (khong co --domain/SITE_LANG — kiem ban gop)")
+    else:
+        other_lang = "pl" if LANG == "de" else "de"
+        other_dom = "plasma.click" if LANG == "de" else "sunbow.click"
+        dom_url = SUN if LANG == "de" else PLA
+        one_bad = []
+        # (a) Khong co thu muc/trang cua ngon ngu kia trong _site
+        other_dir = out / other_lang
+        if other_dir.exists() and any(other_dir.rglob("*")):
+            one_bad.append(f"con thu muc _site/{other_lang}/ (ngon ngu kia)")
+        if LANG == "pl":
+            dash = out / "dashboard"
+            if dash.exists() and any(dash.rglob("*")):
+                one_bad.append("con thu muc _site/dashboard/ (chi co tren ban de)")
+        # (b) 0 link noi bo toi ngon ngu kia + 0 chuoi domain kia + 0 nut
+        # chuyen ngon ngu trong HTML da dung
+        href_re = re.compile(r'href="([^"]+)"')
+        for h in htmls:
+            rel = str(h.relative_to(out))
+            t = nfc(h.read_text(encoding="utf-8", errors="ignore"))
+            if "lang-switch" in t:
+                one_bad.append(f"{rel}: con nut chuyen ngon ngu (lang-switch)")
+                continue
+            if other_dom in t:
+                one_bad.append(f"{rel}: chua chuoi domain kia {other_dom}")
+                continue
+            bad_href = [u for u in href_re.findall(t)
+                        if u.startswith(f"/{other_lang}/")
+                        or u.startswith(f"https://{other_dom}/")]
+            if bad_href:
+                one_bad.append(f"{rel}: link toi ngon ngu kia: {bad_href[:3]}")
+        # (c) Canonical moi trang tu tro ve domain dang kiem
+        canon_other = []
+        for h in htmls:
+            rel = str(h.relative_to(out))
+            if rel == "admin/index.html":
+                continue
+            t = nfc(h.read_text(encoding="utf-8", errors="ignore"))
+            ms = re.findall(r'<link rel="canonical" href="([^"]+)"', t)
+            if len(ms) == 1 and not ms[0].startswith(dom_url + "/"):
+                canon_other.append(f"{rel}: {ms[0]}")
+        if canon_other:
+            one_bad.append(f"canonical khong tu tro ve {DOMAIN}: {canon_other[:3]}")
+        # (d) Admin da dung chi co collection posts cua ngon ngu do + du
+        # About/Legal cua ngon ngu do; config nguon van du ca 2 collection
+        cfg_out_text = cfg_out.read_text(encoding="utf-8", errors="ignore") if cfg_out.exists() else ""
+        cfg_src_text = cfg_src.read_text(encoding="utf-8", errors="ignore") if cfg_src.exists() else ""
+        if f"  - name: posts_{LANG}" not in cfg_out_text:
+            one_bad.append(f"_site/admin/config.yml thieu collection posts_{LANG}")
+        if f"  - name: posts_{other_lang}" in cfg_out_text:
+            one_bad.append(f"_site/admin/config.yml con collection posts_{other_lang}")
+        for coll in ("about", "legal"):
+            if f"  - name: {coll}" not in cfg_out_text:
+                one_bad.append(f"_site/admin/config.yml thieu collection {coll}")
+        if LANG == "de":
+            want_files = ("ueber_uns", "impressum", "datenschutz", "kontakt_de")
+            ban_files = ("o_nas", "polityka", "kontakt")
+        else:
+            want_files = ("o_nas", "polityka", "kontakt")
+            ban_files = ("ueber_uns", "impressum", "datenschutz", "kontakt_de")
+        # (Dung regex neo dau/cuoi dong: "kontakt" la tien to cua "kontakt_de"
+        # nen kiem chuoi con se bao sai.)
+        for fname in want_files:
+            if not re.search(rf"^      - name: {re.escape(fname)}\s*$", cfg_out_text, flags=re.M):
+                one_bad.append(f"_site/admin/config.yml thieu muc file {fname}")
+        for fname in ban_files:
+            if re.search(rf"^      - name: {re.escape(fname)}\s*$", cfg_out_text, flags=re.M):
+                one_bad.append(f"_site/admin/config.yml con muc file {fname} (ngon ngu kia)")
+        if (f"  - name: posts_{LANG}" not in cfg_src_text
+                or f"  - name: posts_{other_lang}" not in cfg_src_text):
+            one_bad.append("src/admin/config.yml thieu 1 trong 2 collection posts (nguon phai giu du ca 2)")
+        if one_bad:
+            fail(f"mot ngon ngu: {one_bad[:8]}"
+                 + (f" (+{len(one_bad) - 8} loi nua)" if len(one_bad) > 8 else ""))
+        else:
+            print(f"13. Mot ngon ngu: DAT (0 trang {other_lang} trong _site; 0 link cheo; "
+                  f"canonical tu tro ve {DOMAIN}; admin chi posts_{LANG})")
+
+    # ---------- 14. Front matter cua file do CMS tao ----------
+    # (Ruler 10:14 28/11 — Sveltia tung ghi sai dinh dang ban build cho:
+    # date co gio, thieu tags, cover dang /media/, permalink /de//. Bay gio
+    # config da sua + build da chiu duoc — muc nay bat file nao van sai
+    # truoc khi day.)
+    fm_bad = []
+
+    def _fm_field(fm_text, name):
+        m = re.search(rf"^{name}:\s*(.+?)\s*$", fm_text, flags=re.M)
+        return m.group(1).strip() if m else None
+
+    for lang in ("de", "pl"):
+        for md in sorted((src / lang / "posts").glob("*.md")):
+            text = md.read_text(encoding="utf-8", errors="ignore")
+            m = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, flags=re.S)
+            if not m:
+                fm_bad.append(f"{lang}/{md.stem}: khong co khoi front matter ---")
+                continue
+            fm = m.group(1)
+            errs = []
+            date_v = _fm_field(fm, "date")
+            if date_v is None:
+                errs.append("thieu date")
+            elif not re.match(r"^\d{4}-\d{2}-\d{2}$", date_v.strip("\"'")):
+                errs.append(f"date sai dang (phai YYYY-MM-DD, khong gio): {date_v}")
+            slug_v = _fm_field(fm, "slug")
+            slug_c = slug_v.strip("\"'") if slug_v else None
+            if slug_v is None:
+                errs.append("thieu slug")
+            elif not re.match(r"^[a-z0-9-]+$", slug_c):
+                errs.append(f"slug sai dang: {slug_v}")
+            cover_v = _fm_field(fm, "cover")
+            if cover_v is None:
+                errs.append("thieu cover")
+            else:
+                cf = site / resolve_cover_path(cover_v)
+                if not cf.is_file():
+                    errs.append(f"cover khong co file: {cover_v}")
+                elif cf.stat().st_size == 0:
+                    errs.append(f"cover rong 0B: {cover_v}")
+            perm_v = _fm_field(fm, "permalink")
+            if perm_v is not None and slug_c is not None:
+                pv = perm_v.strip("\"'")
+                ok_perm = ("/" + lang + "/" + slug_c + "/",
+                           "/" + lang + "/{{ slug }}/")
+                if pv not in ok_perm:
+                    errs.append("permalink sai: " + pv + " (phai /" + lang + "/"
+                                + slug_c + "/ hoac /" + lang + "/{{ slug }}/ hoac khong co)")
+            layout_v = _fm_field(fm, "layout")
+            if layout_v is not None and layout_v.strip("\"'") != "layouts/post.njk":
+                errs.append(f"layout sai: {layout_v}")
+            tags_m = re.search(r"^tags:\s*(.*)$", fm, flags=re.M)
+            if tags_m is not None:
+                tv = tags_m.group(1).strip()
+                if tv == "":
+                    after = fm[tags_m.end():]
+                    if not re.search(r"^\s*-\s+\S", after, flags=re.M):
+                        errs.append("tags rong (khong phai list)")
+                elif not re.match(r"^\[.*\]$", tv):
+                    errs.append(f"tags khong phai list: {tv}")
+            if errs:
+                fm_bad.append(f"{lang}/{md.stem}: " + "; ".join(errs))
+    if fm_bad:
+        fail(f"front matter ({len(fm_bad)} file): " + "; ".join(fm_bad[:8])
+             + (f" (+{len(fm_bad) - 8} file nua)" if len(fm_bad) > 8 else ""))
+    else:
+        n_posts = sum(1 for lang in ("de", "pl")
+                      for _ in (src / lang / "posts").glob("*.md"))
+        print(f"14. Front matter: DAT ({n_posts} bai: date chi ngay, slug hop le, "
+              "cover tro file that, permalink dung/thieu, layout dung, tags list/thieu)")
 
     print("KET LUAN:", "DAT - CHO PHEP DAY" if ok else "TRUOT - CHAN DAY")
     sys.exit(0 if ok else 1)

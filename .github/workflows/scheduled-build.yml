@@ -1,12 +1,14 @@
 # Rebuild dinh ky — de bai hen gio tu len ma khong can ai bam nut.
 # Chay 2 lan/ngay (06:00 va 18:00 UTC). Chi viet file, KHONG kich hoat o day.
-# Khac ban goc trong site/.github/workflows/scheduled-build.yml o 2 cho:
+# Khac ban goc trong site/.github/workflows/scheduled-build.yml o 3 cho:
 # buoc "Copy CNAME" — moi lan deploy (ke ca dinh ky) deu phai co CNAME trong
 # artifact, neu khong GitHub Pages mat custom domain.
 # buoc "Split sitemap/robots" (27/11/2026, Ruler 08:50) — moi domain chi duoc
-# co sitemap/robots cua chinh no (sunbow 30 loc, plasma 27 loc); neu khong
-# buoc nay, lan rebuild dinh ky se dua ban gop 57 loc + 2 dong Sitemap len
-# live lai. Chay sau khi build, truoc khi upload artifact.
+# co sitemap/robots cua chinh no (sunbow 30 loc, plasma 27 loc); buoc nay
+# kiem chung (va loc neu con sot) sau khi build, truoc khi upload artifact.
+# buoc "Set SITE_LANG from CNAME" (Phuong an A, Ruler 15:52 27/11) — BAT BUOC:
+# moi web chi build 1 ngon ngu; neu khong buoc nay, lan rebuild dinh ky se
+# dua ban gop ca 2 ngon ngu len live lai. Chay truoc npm run build.
 name: Scheduled build
 
 on:
@@ -33,13 +35,30 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      # Phuong an A (Ruler 15:52 27/11) — BAT BUOC: moi web chi build 1 ngon ngu.
+      # Doc CNAME (sunbow.click -> de, plasma.click -> pl) roi dat SITE_LANG
+      # cho buoc build sau. Neu khong buoc nay, rebuild dinh ky se dua ban
+      # gop ca 2 ngon ngu len live lai.
+      - name: Set SITE_LANG from CNAME
+        run: |
+          test -f CNAME || { echo "THIEU file CNAME o goc repo — dung deploy"; exit 1; }
+          DOMAIN=$(cat CNAME | tr -d '[:space:]')
+          case "$DOMAIN" in
+            sunbow.click) echo "SITE_LANG=de" >> $GITHUB_ENV ;;
+            plasma.click) echo "SITE_LANG=pl" >> $GITHUB_ENV ;;
+            *) echo "CNAME khong hop le: $DOMAIN (can sunbow.click|plasma.click)"; exit 1 ;;
+          esac
+          echo "SITE_LANG da dat theo CNAME=$DOMAIN"
       - run: npm run build
       - name: Copy CNAME into _site
         run: |
           test -f CNAME || { echo "THIEU file CNAME o goc repo — dung deploy"; exit 1; }
           cp CNAME _site/CNAME
           cat _site/CNAME
-      - name: Split sitemap/robots per domain (CNAME)
+      # Kiem chung sitemap/robots theo domain (Ruler 08:50 27/11, Phuong an A
+      # 15:52 27/11): build da loc theo ngon ngu (SITE_LANG) nen sitemap/robots
+      # sinh ra da theo domain; buoc nay chi kiem chung (va loc neu con sot).
+      - name: Verify sitemap/robots per domain (CNAME)
         run: python3 scripts/split-sitemap-robots.py --site-dir .
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -16,6 +16,28 @@ function isScheduled(post) {
 }
 
 module.exports = function (eleventyConfig) {
+  // --- Loc ngon ngu luc build (Phuong an A, Ruler 15:52 27/11) ---
+  // SITE_LANG=de -> chi dung tieng Duc (sunbow.click); SITE_LANG=pl -> chi
+  // dung tieng Ba Lan (plasma.click); khong dat -> dung ca 2 ngon ngu (ban
+  // gop cu, chi dung khi phat trien local). File .md ngon ngu kia GIU NGUYEN
+  // trong repo (khong xoa) — chi loai khoi ban build.
+  const SITE_LANG = process.env.SITE_LANG || "";
+  if (SITE_LANG && SITE_LANG !== "de" && SITE_LANG !== "pl") {
+    throw new Error(`SITE_LANG khong hop le: ${JSON.stringify(SITE_LANG)} (chi duoc "de" hoac "pl")`);
+  }
+  const OTHER_LANG = SITE_LANG === "de" ? "pl" : SITE_LANG === "pl" ? "de" : "";
+  if (OTHER_LANG) {
+    // Loai toan bo cay ngon ngu kia khoi build (bai, trang index, chuyen muc,
+    // trang phap ly, search.json) — _site se khong co file nao cua ngon ngu do.
+    eleventyConfig.ignores.add(`src/${OTHER_LANG}/**`);
+  }
+  if (SITE_LANG === "pl") {
+    // Dashboard la trang tieng Duc (canonical sunbow) — chi co tren ban de.
+    eleventyConfig.ignores.add("src/dashboard.njk");
+  }
+  // Cho template biet dang build ngon ngu nao ("de" | "pl" | "both").
+  eleventyConfig.addGlobalData("build_lang", SITE_LANG || "both");
+
   // --- Static passthrough ---
   eleventyConfig.addPassthroughCopy({ "src/assets": "assets" });
   eleventyConfig.addPassthroughCopy({ "src/admin": "admin" });
@@ -50,7 +72,13 @@ module.exports = function (eleventyConfig) {
   // --- Shortcode anh responsive: nhieu co + dinh dang hien dai, giu anh goc ---
   // Dung: {% image "src/media/covers/hund.jpg", "Mo ta anh", "eager" %}
   eleventyConfig.addAsyncShortcode("image", async function (src, alt, loading) {
-    const srcPath = path.join(__dirname, src);
+    // Sveltia ghi cover dang /media/... (theo public_folder); file doi viet
+    // dang src/media/... — chap nhan ca 2, deu tro toi src/media/... tren dia.
+    // (Khong doi public_folder trong config: doi se lam hong xem truoc anh
+    // trong admin Sveltia.)
+    let diskSrc = src;
+    if (diskSrc.startsWith("/media/")) diskSrc = "src" + diskSrc;
+    const srcPath = path.join(__dirname, diskSrc);
     const metadata = await Image(srcPath, {
       widths: [400, 800, 1200],
       formats: ["avif", "webp", "jpeg"],

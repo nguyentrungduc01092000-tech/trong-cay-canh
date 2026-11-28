@@ -5,5 +5,11 @@ eleventyExcludeFromCollections: true
 User-agent: *
 Allow: /
 Disallow: /admin/
+{# Khi build loc 1 ngon ngu (SITE_LANG), chi khai Sitemap cua domain do;
+   khi khong loc (both) thi khai ca 2 nhu cu. #}
+{% if build_lang != "pl" %}
 Sitemap: {{ settings.site_url_de }}/sitemap.xml
+{% endif %}
+{% if build_lang != "de" %}
 Sitemap: {{ settings.site_url_pl }}/sitemap.xml
+{% endif %}
