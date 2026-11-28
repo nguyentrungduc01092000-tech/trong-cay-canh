@@ -74,6 +74,7 @@ collections:
     format: frontmatter
     slug: "{{slug}}"
     summary: "{{title}} — {{category}} · {{date}}"
+    preview_path: "/de/{{slug}}/"
     sortable_fields: [date, title]
     view_filters:
       - { label: "Liebe", field: category, pattern: "Liebe" }
@@ -118,6 +119,7 @@ collections:
     format: frontmatter
     slug: "{{slug}}"
     summary: "{{title}} — {{category}} · {{date}}"
+    preview_path: "/pl/{{slug}}/"
     sortable_fields: [date, title]
     view_filters:
       - { label: "Miłość", field: category, pattern: "Miłość" }
