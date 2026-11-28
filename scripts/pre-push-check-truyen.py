@@ -3,9 +3,11 @@
 Nhom D, 26/11/2026 — CHUA day, chi chuan bi.
 
 Usage:
-  pre-push-check-truyen.py [--site-dir PATH] [--expect N] [--no-build] [--domain DOMAIN]
+  pre-push-check-truyen.py [--site-dir PATH] [--expect N] [--expect-de N] [--expect-pl N] [--no-build] [--domain DOMAIN]
     --site-dir : thu muc site/ (mac dinh: ../site ke tu file script)
-    --expect   : so truyen ky vong MOI web (mac dinh 20; demo hien tai dung 7)
+    --expect / --expect-de / --expect-pl : so truyen truyen ro CHI DE DOI CHIEU
+        (khong bat buoc); cong TU DEM so truyen tu file .md nguon trong repo
+        (src/<lang>/posts/*.md) lam chuan — them/xoa truyen khong can sua cong.
     --no-build : bo qua buoc build (dung khi _site vua build xong va src/ chua doi)
     --domain   : kiem them file CNAME cua repo nay (sunbow.click hoac plasma.click)
 
@@ -14,9 +16,10 @@ Kiem (moi muc DAT moi cho phep day; 1 muc TRUOT = CHAN day):
      --domain/SITE_LANG thi truyen SITE_LANG vao build va xoa tay thu muc cu
      cua ngon ngu kia trong _site truoc khi build — build tang dan khong tu
      xoa file cu).
-  1. So truyen: moi web du --expect truyen da build; file .md nguon khop so truyen
-     da build (truyen nhap/hen gio chua len se bi neu ten); moi URL truyen co
-     trong sitemap. (Phuong an A) Ngon ngu kia KHONG build: phai co 0 truyen
+  1. So truyen: so truyen da build phai bang so file .md nguon (tu dem tu
+     repo); file .md nguon khop so truyen da build (truyen nhap/hen gio chua
+     len se bi neu ten); moi URL truyen co trong sitemap. (Phuong an A) Ngon
+     ngu kia KHONG build: phai co 0 truyen
      da build nhung file .md nguon van phai con (chung minh khong xoa khoi repo).
   2. Sitemap (Phuong an A): XML hop le; KHI CO --domain (hoac SITE_LANG):
      chi URL cua domain do — sunbow = truyen DE + 10 (trang chu DE +
@@ -136,7 +139,7 @@ def resolve_cover_path(raw):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--site-dir", default=None)
-    ap.add_argument("--expect", type=int, default=20)
+    ap.add_argument("--expect", type=int, default=None)  # chi de doi chieu, khong bat buoc
     ap.add_argument("--expect-de", type=int, default=None)
     ap.add_argument("--expect-pl", type=int, default=None)
     ap.add_argument("--no-build", action="store_true")
@@ -164,13 +167,25 @@ def main():
     else:
         LANG = None
     DOMAIN = {"de": "sunbow.click", "pl": "plasma.click"}.get(LANG)
-    # So truyen ky vong: khi co --domain, mac dinh theo domain (sunbow 20 DE /
-    # 0 PL; plasma 0 DE / 19 PL); --expect-de/--expect-pl truyen ro se ghi de.
-    if LANG and a.expect_de is None and a.expect_pl is None:
-        expect = {"de": 20, "pl": 0} if LANG == "de" else {"de": 0, "pl": 19}
-    else:
-        expect = {"de": a.expect_de if a.expect_de is not None else a.expect,
-                  "pl": a.expect_pl if a.expect_pl is not None else a.expect}
+    # So truyen ky vong: TU DEM tu file .md nguon trong repo (Ruler 28/11/2026)
+    # — khong con so ghi cung: them/xoa truyen qua CMS hay them tay thi cong
+    # tu cap nhat theo, khong can sua cong. --expect/--expect-de/--expect-pl
+    # (neu truyen) CHI DE DOI CHIEU: khac so dem thi in ghi chu, khong truot.
+    # (Rieng ngon ngu KHONG build trong che do --domain thi khong doi chieu,
+    # vi --expect cua no mang nghia "build 0", khong phai so file nguon.)
+    src_count = {}
+    for lang in ("de", "pl"):
+        posts = src / lang / "posts"
+        src_count[lang] = len(list(posts.glob("*.md"))) if posts.exists() else 0
+    expect = dict(src_count)
+    check = {"de": a.expect_de if a.expect_de is not None else a.expect,
+             "pl": a.expect_pl if a.expect_pl is not None else a.expect}
+    for lang in ("de", "pl"):
+        if LANG and lang != LANG:
+            continue
+        if check[lang] is not None and check[lang] != src_count[lang]:
+            print(f"   (doi chieu: --expect-{lang}={check[lang]} khac so dem tu "
+                  f"nguon={src_count[lang]} — dung so dem tu nguon)")
 
     def fail(msg):
         nonlocal ok
