@@ -9,6 +9,34 @@
 {% if settings.adsense_enabled %}<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1934454305970765" crossorigin="anonymous"></script>{% endif %}
 <meta name="description" content="{{ seo_description or description or tagline }}">
 <link rel="canonical" href="{{ site_url }}{{ page.url }}">
+{# The chia se (Dot 1, Ruler 10:00 28/11): trang truyen co og:type=article
+   + anh 1200x630; trang khac co og co ban + anh mac dinh cua ngon ngu. #}
+{% if cover %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ seo_title or title }}">
+<meta property="og:description" content="{{ seo_description or description }}">
+<meta property="og:url" content="{{ site_url }}{{ page.url }}">
+<meta property="og:image" content="{{ site_url }}/img/og/{{ slug }}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ title }}">
+<meta property="og:site_name" content="{{ site_name }}">
+<meta property="og:locale" content="{{ 'de_DE' if (lang | default('de')) == 'de' else 'pl_PL' }}">
+<meta property="article:published_time" content="{{ date | date('%Y-%m-%d') }}">
+<meta name="twitter:card" content="summary_large_image">
+{% else %}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ seo_title or title or site_name }}">
+<meta property="og:description" content="{{ seo_description or description or tagline }}">
+<meta property="og:url" content="{{ site_url }}{{ page.url }}">
+<meta property="og:image" content="{{ site_url }}/img/og/default-{{ lang | default('de') }}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ site_name }}">
+<meta property="og:site_name" content="{{ site_name }}">
+<meta property="og:locale" content="{{ 'de_DE' if (lang | default('de')) == 'de' else 'pl_PL' }}">
+<meta name="twitter:card" content="summary_large_image">
+{% endif %}
 <link rel="stylesheet" href="/assets/css/style.css">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 </head>

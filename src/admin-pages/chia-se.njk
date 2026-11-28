@@ -1,0 +1,143 @@
+---
+permalink: /admin/chia-se/index.html
+eleventyExcludeFromCollections: true
+---
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Chia sẻ — Trang nội bộ</title>
+<style>
+body { font-family: Georgia, serif; background: #fdfcf9; color: #222; margin: 0; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { color: #1e3a5f; font-size: 26px; margin: 0 0 8px; }
+.lead { color: #555; margin: 0 0 20px; }
+h2 { color: #1e3a5f; font-size: 20px; border-bottom: 2px solid #b7791f; padding-bottom: 6px; margin: 28px 0 12px; }
+.search { width: 100%; box-sizing: border-box; font-size: 16px; padding: 10px 12px; border: 1px solid #999; border-radius: 6px; margin-bottom: 8px; }
+.count { color: #555; margin: 0 0 12px; }
+.story { display: flex; gap: 14px; align-items: flex-start; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #fff; }
+.thumb { width: 120px; height: 63px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.info { flex: 1; min-width: 0; }
+.story-title { font-size: 17px; margin: 0 0 4px; line-height: 1.35; }
+.meta { color: #666; font-size: 13px; margin: 0 0 10px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions button { font-size: 14px; padding: 7px 12px; border-radius: 6px; border: 1px solid #1e3a5f; background: #fff; color: #1e3a5f; cursor: pointer; }
+.actions button:hover { background: #eef3f8; }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Chia sẻ truyện</h1>
+<p class="lead">Trang nội bộ — chỉ dùng để sao chép link và ảnh chia sẻ của các truyện đã đăng. Không có liên kết công khai tới trang này.</p>
+<input class="search" type="search" placeholder="Tìm theo tiêu đề truyện…" autocomplete="off">
+<p class="count"></p>
+{% macro storyRow(post, site_url) %}
+<article class="story" data-title="{{ post.data.title }}">
+  <img class="thumb" src="/img/og/{{ post.data.slug }}.jpg" alt="" width="120" height="63" loading="lazy">
+  <div class="info">
+    <h3 class="story-title">{{ post.data.title }}</h3>
+    <p class="meta">{{ post.date | date("%Y-%m-%d") }} · {{ post.data.category }}</p>
+    <div class="actions">
+      <button type="button" class="copy-link" data-link="{{ site_url }}{{ post.url }}">Sao chép link</button>
+      <button type="button" class="copy-image" data-image="{{ site_url }}/img/og/{{ post.data.slug }}.jpg" data-name="{{ post.data.slug }}.jpg">Sao chép ảnh</button>
+      <button type="button" class="copy-title-link" data-title="{{ post.data.title }}" data-link="{{ site_url }}{{ post.url }}">Sao chép tiêu đề + link</button>
+    </div>
+  </div>
+</article>
+{% endmacro %}
+{% if build_lang == "de" or build_lang == "both" %}
+<section>
+<h2>Tiếng Đức — sunbow.click</h2>
+{% for post in collections.posts_de %}
+{{ storyRow(post, settings.site_url_de) }}
+{% endfor %}
+</section>
+{% endif %}
+{% if build_lang == "pl" or build_lang == "both" %}
+<section>
+<h2>Tiếng Ba Lan — plasma.click</h2>
+{% for post in collections.posts_pl %}
+{{ storyRow(post, settings.site_url_pl) }}
+{% endfor %}
+</section>
+{% endif %}
+</main>
+<script>
+var input = document.querySelector(".search");
+var rows = Array.prototype.slice.call(document.querySelectorAll(".story"));
+var count = document.querySelector(".count");
+function showCount(shown) {
+  count.textContent = "Hiển thị " + shown + " / " + rows.length + " truyện";
+}
+showCount(rows.length);
+input.addEventListener("input", function () {
+  var q = input.value.toLowerCase();
+  var shown = 0;
+  rows.forEach(function (row) {
+    var hit = row.getAttribute("data-title").toLowerCase().indexOf(q) !== -1;
+    row.style.display = hit ? "" : "none";
+    if (hit) shown++;
+  });
+  showCount(shown);
+});
+function flash(btn, text) {
+  var old = btn.textContent;
+  btn.textContent = text;
+  setTimeout(function () { btn.textContent = old; }, 1500);
+}
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    flash(btn, "Đã sao chép");
+  } catch (e) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      flash(btn, "Đã sao chép");
+    } catch (e2) {
+      flash(btn, "Không sao chép được");
+    }
+    document.body.removeChild(ta);
+  }
+}
+async function copyImage(btn) {
+  var url = btn.getAttribute("data-image");
+  try {
+    var img = new Image();
+    await new Promise(function (res, rej) { img.onload = res; img.onerror = rej; img.src = url; });
+    var canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext("2d").drawImage(img, 0, 0);
+    var blob = await new Promise(function (res) { canvas.toBlob(res, "image/png"); });
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    flash(btn, "Đã sao chép ảnh");
+  } catch (e) {
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = btn.getAttribute("data-name") || "anh-chia-se.jpg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    flash(btn, "Đã tải ảnh xuống");
+  }
+}
+document.querySelectorAll(".copy-link").forEach(function (btn) {
+  btn.addEventListener("click", function () { copyText(btn.getAttribute("data-link"), btn); });
+});
+document.querySelectorAll(".copy-title-link").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    copyText(btn.getAttribute("data-title") + "\n" + btn.getAttribute("data-link"), btn);
+  });
+});
+document.querySelectorAll(".copy-image").forEach(function (btn) {
+  btn.addEventListener("click", function () { copyImage(btn); });
+});
+</script>
+</body>
+</html>

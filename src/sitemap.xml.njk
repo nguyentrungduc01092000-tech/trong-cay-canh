@@ -8,7 +8,7 @@ eleventyExcludeFromCollections: true
    12 trang chuyen muc duoc liet ke rieng tu categories.json ben duoi.
    Moi ngon ngu mot domain: /de/ + /dashboard/ -> sunbow.click, /pl/ -> plasma.click. #}
 {%- for page in collections.all %}
-{%- if page.url and page.url != "/admin/" and "kategorie" not in page.url and "kategoria" not in page.url %}
+{%- if page.url and "/admin/" not in page.url and "kategorie" not in page.url and "kategoria" not in page.url %}
 {%- set purl = settings.site_url_de if page.url.startsWith('/de/') or page.url == '/dashboard/' else settings.site_url_pl %}
   <url><loc>{{ purl }}{{ page.url }}</loc></url>
 {%- endif %}
