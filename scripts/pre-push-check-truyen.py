@@ -105,7 +105,6 @@ import subprocess
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
-from PIL import Image as PilImage
 from pathlib import Path
 
 EMAIL = "nguyentrungduc01092000@gmail.com"
@@ -142,6 +141,42 @@ def resolve_cover_path(raw):
     if p.startswith("media/"):
         p = "src/" + p
     return p
+
+
+def _jpeg_size(f):
+    # Tra ve (rong, cao) cua file JPEG, hoac None neu khong phai JPEG.
+    # Doc tieu de SOF0/SOF1/SOF2, chi dung thu vien chuan — PIL (Pillow)
+    # khong co san tren runner GitHub Actions (deploy 28/11 truot vi
+    # ModuleNotFoundError: No module named 'PIL' o muc 15).
+    try:
+        data = Path(f).read_bytes()
+    except Exception:
+        return None
+    if len(data) < 4 or data[0:2] != b"\xff\xd8":
+        return None
+    i, n = 2, len(data)
+    while i + 9 <= n:
+        if data[i] != 0xFF:
+            i += 1
+            continue
+        marker = data[i + 1]
+        if marker == 0xFF:  # byte dem 0xFF
+            i += 1
+            continue
+        if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD9:
+            i += 2
+            continue
+        if i + 4 > n:
+            return None
+        seg_len = (data[i + 2] << 8) | data[i + 3]
+        if seg_len < 2 or i + 2 + seg_len > n:
+            return None
+        if marker in (0xC0, 0xC1, 0xC2):  # SOF0/SOF1/SOF2
+            h = (data[i + 5] << 8) | data[i + 6]
+            w = (data[i + 7] << 8) | data[i + 8]
+            return (w, h)
+        i += 2 + seg_len
+    return None
 
 
 def main():
@@ -818,12 +853,11 @@ def main():
         f = out / m.group(1).lstrip("/")
         if not f.is_file():
             return f"{page_rel}: og:image khong co file: {url}"
-        try:
-            with PilImage.open(f) as im:
-                if im.size != (1200, 630) or im.format != "JPEG":
-                    return f"{page_rel}: og:image sai ({im.format} {im.size[0]}x{im.size[1]}): {url}"
-        except Exception as e:
-            return f"{page_rel}: og:image khong doc duoc: {e}"
+        size = _jpeg_size(f)
+        if size is None:
+            return f"{page_rel}: og:image khong phai JPEG hoac khong doc duoc: {url}"
+        if size != (1200, 630):
+            return f"{page_rel}: og:image sai kich thuoc ({size[0]}x{size[1]}): {url}"
         if f.stat().st_size > 300 * 1024:
             return f"{page_rel}: og:image vuot 300 KB ({f.stat().st_size // 1024} KB)"
         return None
@@ -848,12 +882,11 @@ def main():
         if not d.is_file():
             og_bad.append(f"thieu anh mac dinh img/og/default-{lang}.jpg")
             continue
-        try:
-            with PilImage.open(d) as im:
-                if im.size != (1200, 630) or im.format != "JPEG":
-                    og_bad.append(f"default-{lang}.jpg sai ({im.format} {im.size[0]}x{im.size[1]})")
-        except Exception as e:
-            og_bad.append(f"default-{lang}.jpg khong doc duoc: {e}")
+        size = _jpeg_size(d)
+        if size is None:
+            og_bad.append(f"default-{lang}.jpg khong phai JPEG hoac khong doc duoc")
+        elif size != (1200, 630):
+            og_bad.append(f"default-{lang}.jpg sai kich thuoc ({size[0]}x{size[1]})")
         if d.stat().st_size > 300 * 1024:
             og_bad.append(f"default-{lang}.jpg vuot 300 KB ({d.stat().st_size // 1024} KB)")
     # Trang truyen: du the og + anh dung 1200x630.
