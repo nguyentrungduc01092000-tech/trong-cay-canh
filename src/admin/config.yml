@@ -4,6 +4,19 @@
 # trinh duyet cua Ruler, khong luu trong repo.
 # Truoc khi dung that: sua `repo:` thanh repo GitHub that cua Ruler.
 #
+# CAP NHAT 28/11/2026 (Ruler 10:14 — Sveltia ghi sai dinh dang ban build cho):
+# - Truong date doi widget datetime -> date (da sua truoc do).
+# - Truong tags them `default: []` (truoc day Sveltia bo qua khi rong, lam
+#   index.njk crash vi join tren undefined — build nay da chiu duoc truyen
+#   thieu tags).
+# - BO truong an permalink o posts_de/posts_pl: Sveltia danh gia mac dinh
+#   "/de/{{ slug }}/" thanh "/de//" khi tao bai (slug luc do rong). Build nay
+#   tinh permalink tu slug (posts.11tydata.js) nen file khong can dong
+#   permalink nua; layout van giu (truong an).
+# - Cover: Sveltia ghi "/media/..." theo public_folder — KHONG doi cau hinh
+#   (doi public_folder se lam hong xem truoc anh trong admin); build chap
+#   nhan ca 2 dang (shortcode image map /media/ -> src/media/).
+#
 # CAP NHAT 26/11/2026 (nhom F, theo spec admin C + lenh doi chu de tinh cam):
 # - Chuyen muc doi sang 4 nhom tinh cam moi (Liebe / Ehe und Beziehung /
 #   Familie und Herz / Versohnung — Miłość / Małżeństwo i związek / Rodzina /
@@ -81,8 +94,8 @@ collections:
         widget: select
         required: true
         options: ["Liebe", "Ehe und Beziehung", "Familie und Herz", "Versöhnung"]
-      - { name: tags, label: "Thẻ (tags)", widget: list, required: false, field: { name: tag, label: "Thẻ", widget: string } }
-      - { name: date, label: "Ngày đăng / hẹn giờ", widget: datetime, required: true, date_format: "YYYY-MM-DD", time_format: "HH:mm", hint: "Đặt ngày trong tương lai = hẹn giờ; bài tự lên khi workflow rebuild định kỳ chạy." }
+      - { name: tags, label: "Thẻ (tags)", widget: list, required: false, default: [], field: { name: tag, label: "Thẻ", widget: string } }
+      - { name: date, label: "Ngày đăng / hẹn giờ", widget: date, required: true, date_format: "YYYY-MM-DD", hint: "Đặt ngày trong tương lai = hẹn giờ; bài tự lên khi workflow rebuild định kỳ chạy." }
       - { name: author, label: "Tác giả hiển thị", widget: string, required: false, default: "Redaktion" }
       - { name: seo_title, label: "SEO title", widget: string, required: false }
       - { name: seo_description, label: "SEO description", widget: text, required: false }
@@ -95,7 +108,6 @@ collections:
           - { label: "Đã đăng (published)", value: false }
           - { label: "Nháp (draft)", value: true }
       - { name: layout, label: "Layout (nội bộ — không sửa)", widget: hidden, required: false, default: "layouts/post.njk" }
-      - { name: permalink, label: "Permalink (nội bộ — không sửa)", widget: hidden, required: false, default: "/de/{{ slug }}/" }
   # ---- Truyen tieng Ba Lan ----
   - name: posts_pl
     label: "Truyện tiếng Ba Lan (Posts PL)"
@@ -126,8 +138,8 @@ collections:
         widget: select
         required: true
         options: ["Miłość", "Małżeństwo i związek", "Rodzina", "Pojednanie"]
-      - { name: tags, label: "Tagi", widget: list, required: false, field: { name: tag, label: "Tag", widget: string } }
-      - { name: date, label: "Data publikacji / zaplanowana", widget: datetime, required: true, date_format: "YYYY-MM-DD", time_format: "HH:mm", hint: "Data w przyszłości = zaplanowana; pojawi się po zaplanowanym rebuildzie." }
+      - { name: tags, label: "Tagi", widget: list, required: false, default: [], field: { name: tag, label: "Tag", widget: string } }
+      - { name: date, label: "Data publikacji / zaplanowana", widget: date, required: true, date_format: "YYYY-MM-DD", hint: "Data w przyszłości = zaplanowana; pojawi się po zaplanowanym rebuildzie." }
       - { name: author, label: "Autor", widget: string, required: false, default: "Redakcja" }
       - { name: seo_title, label: "SEO title", widget: string, required: false }
       - { name: seo_description, label: "SEO description", widget: text, required: false }
@@ -140,7 +152,6 @@ collections:
           - { label: "Opublikowane", value: false }
           - { label: "Szkic", value: true }
       - { name: layout, label: "Layout (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "layouts/post.njk" }
-      - { name: permalink, label: "Permalink (wewnętrzne — nie zmieniać)", widget: hidden, required: false, default: "/pl/{{ slug }}/" }
   # ---- Chuyen muc (sua qua file JSON) ----
   - name: categories
     label: "Chuyên mục (Categories)"
