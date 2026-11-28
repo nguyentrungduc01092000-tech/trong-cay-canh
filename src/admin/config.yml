@@ -96,7 +96,7 @@ collections:
         required: true
         options: ["Liebe", "Ehe und Beziehung", "Familie und Herz", "Versöhnung"]
       - { name: tags, label: "Thẻ (tags)", widget: list, required: false, default: [], field: { name: tag, label: "Thẻ", widget: string } }
-      - { name: date, label: "Ngày đăng / hẹn giờ", widget: date, required: true, date_format: "YYYY-MM-DD", hint: "Đặt ngày trong tương lai = hẹn giờ; bài tự lên khi workflow rebuild định kỳ chạy." }
+      - { name: date, label: "Ngày đăng / hẹn giờ", widget: datetime, type: date, required: true, date_format: "YYYY-MM-DD", hint: "Đặt ngày trong tương lai = hẹn giờ; bài tự lên khi workflow rebuild định kỳ chạy." }
       - { name: author, label: "Tác giả hiển thị", widget: string, required: false, default: "Redaktion" }
       - { name: seo_title, label: "SEO title", widget: string, required: false }
       - { name: seo_description, label: "SEO description", widget: text, required: false }
@@ -141,7 +141,7 @@ collections:
         required: true
         options: ["Miłość", "Małżeństwo i związek", "Rodzina", "Pojednanie"]
       - { name: tags, label: "Tagi", widget: list, required: false, default: [], field: { name: tag, label: "Tag", widget: string } }
-      - { name: date, label: "Data publikacji / zaplanowana", widget: date, required: true, date_format: "YYYY-MM-DD", hint: "Data w przyszłości = zaplanowana; pojawi się po zaplanowanym rebuildzie." }
+      - { name: date, label: "Data publikacji / zaplanowana", widget: datetime, type: date, required: true, date_format: "YYYY-MM-DD", hint: "Data w przyszłości = zaplanowana; pojawi się po zaplanowanym rebuildzie." }
       - { name: author, label: "Autor", widget: string, required: false, default: "Redakcja" }
       - { name: seo_title, label: "SEO title", widget: string, required: false }
       - { name: seo_description, label: "SEO description", widget: text, required: false }
